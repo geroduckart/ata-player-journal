@@ -317,6 +317,40 @@ html.dark-top .toast{background:#fff;color:var(--navy)}
 .mini5 button span{font-size:18px}
 .sheet .pgroup{margin-top:12px}
 
+/* ===== Coach briefing ===== */
+.briefsw{margin-bottom:12px}
+.briefs{display:grid;gap:12px}
+.brief{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-left:5px solid #2BB673;border-radius:var(--radius);padding:16px;transition:transform 160ms var(--ease-out)}
+button.brief:active{transform:scale(.98)}
+.brief.amber{border-left-color:#F2B531}
+.brief.red{border-left-color:#D9381E;background:#FFF8F6}
+.brief.grey{border-left-color:var(--line)}
+.br-top{display:flex;align-items:center;gap:8px}
+.br-top b{font-size:17px}
+.br-dot{width:10px;height:10px;border-radius:50%;background:#2BB673;flex:none}
+.amber .br-dot{background:#F2B531} .red .br-dot{background:#D9381E;box-shadow:0 0 0 4px rgba(217,56,30,.15)} .grey .br-dot{background:var(--line)}
+.br-tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:#E8F6F0;color:#1F7A52}
+.amber .br-tag{background:#FFF4D6;color:#8A5A00} .red .br-tag{background:#FDE3DC;color:#B02A12} .grey .br-tag{background:var(--bg);color:var(--muted)}
+.br-top small{margin-left:auto;font-size:12px;color:var(--muted)}
+.br-head{font-size:16px;font-weight:700;line-height:1.35;margin-top:10px}
+.br-text{font-size:14.5px;line-height:1.55;color:#3A4657;margin-top:6px}
+.br-flags{list-style:none;margin-top:10px;display:grid;gap:6px}
+.br-flags li{font-size:14px;line-height:1.45;padding:8px 10px;border-radius:10px;background:#FFF4D6}
+.br-flags li.red{background:#FDE3DC;font-weight:600}
+.br-flags li::before{content:"⚠️ ";}
+.br-flags li.red::before{content:"🔴 ";}
+.br-act{display:flex;gap:8px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);font-size:14px;font-weight:600;line-height:1.45;color:var(--navy)}
+
+/* ===== PDF export ===== */
+.pdfopt{margin:14px 0 4px}
+.po-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700;margin-bottom:8px}
+
+.pdfopt .choices button{display:flex;flex-direction:column;gap:3px;text-align:left}
+.pdfopt .choices small{font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.4}
+.pdfnote{min-height:80px}
+.tick{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-size:14px;font-weight:600}
+.tick input{width:20px;height:20px;accent-color:var(--orange);-webkit-appearance:auto;appearance:auto}
+
 /* ===== Danger zone ===== */
 .danger{margin-top:40px;border:1.5px solid #F2C4B3;background:#FFF7F4;border-radius:var(--radius);padding:18px;text-align:center}
 .danger h4{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#B8431A;font-weight:700}
@@ -1351,7 +1385,7 @@ function renderIntro(){
       <img class="logo-mono-w" src="${LOGO.MONO_WHITE}" alt="ATA">
       <h1>Before you<br><span>start.</span></h1>
       <div class="rules">
-        <div><b>📖</b><p><strong>This journal is yours.</strong> Only your coaches read it. Not your parents, not other players.</p></div>
+        <div><b>📖</b><p><strong>This journal is yours.</strong> Your coaches read it, other players never do. Your coach may send your parents a progress summary, but never your private messages or what you share about how you feel.</p></div>
         <div><b>💬</b><p><strong>Your coach replies</strong> to every match within 2 days.</p></div>
         <div><b>🚫</b><p><strong>Nothing you write is ever used</strong> to punish you or to pick who plays.</p></div>
         <div><b>🤝</b><p><strong>Rather talk in person?</strong> Tap “I’d like to talk to my coach”. That’s it.</p></div>
@@ -1930,13 +1964,17 @@ async function renderCoach(enter){
       <div class="date">${new Date().toLocaleDateString(LOCALE,{weekday:'long',day:'numeric',month:'long'})}</div>
       <h2>Your<br><span>squad.</span></h2>
       <div class="pillrow">
-        <span class="pill o">${S.squad.length} players</span>
+        ${(n => n ? `<span class="pill o">🔴 ${n} need${n === 1 ? 's' : ''} you</span>` : '<span class="pill o">All good</span>')(S.squad.filter(p => briefing(p, 'week').status === 'red').length)}
+        <span class="pill">${S.squad.length} players</span>
         <span class="pill">${week} entries this week</span>
         <span class="pill">${alertCount} ${alertCount===1?'alert':'alerts'}</span>
         ${toReply ? `<span class="pill ${overdue?'o':''}">💬 ${toReply} to comment${overdue ? ` · ${overdue} over 48h` : ''}</span>` : ''}
       </div>
     </div>
+    ${briefingSection(S.squad, true)}
+    <div class="stitle">Players</div>
     <div class="actions">${S.squad.map(card).join('')}</div>
+    <button type="button" class="btn btn-ghost btn-block mt8" data-act="exportpdf">⬇︎ Export a player’s report (PDF)</button>
     <div class="stitle">Latest activity</div>
     ${all.length ? historyHTML(all.slice(0,30), e => e.who, e => e.pid) : `<div class="empty">No entries yet.<br>They’ll appear here as soon as your players send them.</div>`}
     <div class="danger">
@@ -1980,7 +2018,8 @@ function renderCoachPlayer(enter){
       </div>
     </div>
     <div class="widgets">${miniCardHTML(E, p.name, false)}${weekWidgetHTML(E, false)}</div>
-    ${al.length ? `<div class="stitle">Needs your attention</div><div class="alerts">${al.slice(0,8).map(a => alertHTML(a)).join('')}</div>` : ''}
+    ${briefingSection([p], false)}
+    ${al.length ? `<div class="stitle">All alerts · 14 days</div><div class="alerts">${al.slice(0,8).map(a => alertHTML(a)).join('')}</div>` : ''}
     <div class="stitle">Challenge of the month</div>
     ${challengeEditor(p)}
     <div class="stitle">Patterns <span class="hint">coach only</span></div>
@@ -1998,6 +2037,7 @@ function renderCoachPlayer(enter){
     <div class="stitle">Scouting file</div>
     ${scoutListHTML(E, false)}
     <div class="stitle">History</div>
+    <button type="button" class="btn btn-ghost btn-block" data-act="exportpdf" style="margin-bottom:12px">⬇︎ Export ${esc(p.name)}’s report (PDF)</button>
     <div class="chips filters">${filt('all','All')}${filt('daily','Daily')}${filt('weekly','Weekly')}${filt('pre','Pre-match')}${filt('post','Post-match')}${filt('profile','Profile')}</div>
     ${list.length ? historyHTML(list, null, () => p.id) : `<div class="empty">Nothing here yet.</div>`}
     <div class="foot"><button type="button" class="link" data-act="cresetpin">Reset ${esc(p.name)}’s PIN</button><div class="hint" style="margin-top:4px">Use it if they forget their PIN. It goes back to the original one.</div></div>
@@ -2011,6 +2051,382 @@ async function resetPin(btn){
   try { const r = await api('/pin-reset', { method:'POST', pin:S.coachPin, body:{ player:S.cPlayer } });
         toast(`PIN reset to ${r.defaultPin}`); btn.textContent = `Reset ${playerName(S.cPlayer)}’s PIN`; btn.classList.remove('armed'); delete btn.dataset.armed; }
   catch(e) { toast('Couldn’t reset. Try again.'); btn.textContent = `Reset ${playerName(S.cPlayer)}’s PIN`; delete btn.dataset.armed; btn.classList.remove('armed'); }
+}
+
+/* ===================== Export to PDF (coach) ===================== */
+const PDF_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+function loadJsPDF(){
+  if (window.jspdf) return Promise.resolve(window.jspdf.jsPDF);
+  return new Promise((ok, ko) => {
+    const sc = document.createElement('script'); sc.src = PDF_LIB; sc.async = true;
+    sc.onload = () => window.jspdf ? ok(window.jspdf.jsPDF) : ko(new Error('jsPDF missing'));
+    sc.onerror = () => ko(new Error('offline'));
+    document.head.appendChild(sc);
+  });
+}
+/* The built-in PDF font only knows Latin characters: drop emojis and symbols it can't draw */
+const pdfText = t => String(t ?? '')
+  .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{2190}-\u{21FF}\u{25A0}-\u{25FF}]/gu, '')
+  .replace(/[^\x09\x0A\x0D\x20-\x7E -ÿ–—‘’“”•…€]/g, '')
+  .replace(/\s{2,}/g, ' ').trim();
+
+S.pdf = { player:null, period:'30', kind:'parent', pain:true, note:'' };
+function openExportSheet(){
+  S.pdf.player = S.cPlayer || S.pdf.player || PLAYERS[0].id;
+  const pill = (group, val, label) => `<button type="button" class="${S.pdf[group]===val?'on':''}" data-act="pdfopt" data-id="${group}" data-val="${val}">${label}</button>`;
+  openInfoSheet(`<h3>Export a player’s report</h3><p>One player per PDF, ready to send.</p>
+    <div class="pdfopt"><div class="po-h">Player</div><div class="chips">${PLAYERS.map(p => pill('player', p.id, esc(p.name))).join('')}</div></div>
+    <div class="pdfopt"><div class="po-h">Period</div><div class="chips">${pill('period','7','Last 7 days')}${pill('period','30','Last 30 days')}${pill('period','90','Last 3 months')}${pill('period','all','All time')}</div></div>
+    <div class="pdfopt"><div class="po-h">Type</div><div class="choices">
+      <button type="button" class="${S.pdf.kind==='parent'?'on':''}" data-act="pdfopt" data-id="kind" data-val="parent"><b>Parent report</b><small>Progress, matches, player card, coach comments. No private messages or feelings.</small></button>
+      <button type="button" class="${S.pdf.kind==='full'?'on':''}" data-act="pdfopt" data-id="kind" data-val="full"><b>Full record · coach only</b><small>Every answer. Don’t send this to parents: the players were promised privacy.</small></button>
+    </div></div>
+    <div class="pdfopt parentonly" ${S.pdf.kind==='parent'?'':'hidden'}>
+      <div class="po-h">Note for the parents (optional)</div>
+      <textarea class="pdfnote" rows="3" maxlength="800" placeholder="e.g. Matej is working really hard on his serve. This month we’re focusing on staying calm after mistakes.">${esc(S.pdf.note)}</textarea>
+      <label class="tick"><input type="checkbox" class="pdfpain" ${S.pdf.pain?'checked':''}> Include pain or injury reports</label>
+    </div>
+    <p class="fine">Contains personal data of a minor: send it only to their parents or guardians.</p>`,
+    `<button type="button" class="btn btn-orange btn-block" data-act="pdfgo">Download PDF</button>`);
+}
+
+/* Shared PDF helpers */
+function pdfKit(JsPDF){
+  const doc = new JsPDF({ unit:'mm', format:'a4' });
+  const k = { doc, W:210, H:297, M:18, y:18, NAVY:[18,41,74], ORANGE:[227,91,42], MUTED:[84,96,115], LINE:[224,226,232], INK:[15,23,32] };
+  k.CW = k.W - k.M*2;
+  k.ensure = h => { if (k.y + h > k.H - 16) { doc.addPage(); k.y = k.M; } };
+  k.text = (t, size, color, style = 'normal', indent = 0, gap = 1.6) => {
+    const s = pdfText(t); if (!s) return;
+    doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(...color);
+    const lines = doc.splitTextToSize(s, k.CW - indent), lh = size * 0.42;
+    lines.forEach(line => { k.ensure(lh); doc.text(line, k.M + indent, k.y + lh * 0.8); k.y += lh; });
+    k.y += gap;
+  };
+  k.row = (label, value) => {
+    const LX = k.M + 3, LW = 62, VX = k.M + 3 + LW + 4, VW = k.CW - 3 - LW - 4;
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); const ll = doc.splitTextToSize(pdfText(label), LW);
+    doc.setFontSize(10); const vl = doc.splitTextToSize(pdfText(value) || '-', VW);
+    const h = Math.max(ll.length * 3.6, vl.length * 4.2) + 1.6; k.ensure(h);
+    doc.setFontSize(8.5); doc.setTextColor(...k.MUTED); ll.forEach((t, i) => doc.text(t, LX, k.y + 3.2 + i * 3.6));
+    doc.setFontSize(10); doc.setTextColor(...k.INK); vl.forEach((t, i) => doc.text(t, VX, k.y + 3.4 + i * 4.2));
+    k.y += h;
+  };
+  k.rule = (color = k.LINE) => { k.ensure(3); doc.setDrawColor(...color); doc.setLineWidth(0.3); doc.line(k.M, k.y, k.W - k.M, k.y); k.y += 3; };
+  k.band = (t) => { k.y += 2; k.ensure(14); doc.setFillColor(244,246,249); doc.rect(k.M, k.y, k.CW, 8, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...k.NAVY); doc.text(pdfText(t), k.M + 3, k.y + 5.5); k.y += 11; };
+  k.footer = (label) => { const n = doc.getNumberOfPages();
+    for (let i = 1; i <= n; i++) { doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...k.MUTED);
+      doc.text(`${label} · page ${i} of ${n}`, k.W / 2, k.H - 8, { align:'center' }); } };
+  return k;
+}
+
+async function exportPDF(btn){
+  S.pdf.note = ($app.querySelector('.pdfnote')?.value || '').trim();
+  S.pdf.pain = !!$app.querySelector('.pdfpain')?.checked;
+  btn.disabled = true; btn.textContent = 'Preparing…';
+  try {
+    const JsPDF = await loadJsPDF();
+    try { await loadSquad(); } catch(e) {}
+    const p = S.squad.find(x => x.id === S.pdf.player);
+    const since = S.pdf.period === 'all' ? 0 : Date.now() - Number(S.pdf.period) * 864e5;
+    const periodLabel = { '7':'Last 7 days', '30':'Last 30 days', '90':'Last 3 months', 'all':'All time' }[S.pdf.period];
+    const E = p.entries.filter(e => (FORMS[e.type] || e.type === 'coachprofile') && new Date(e.date).getTime() >= since)
+      .sort((a,b) => String(a.date).localeCompare(String(b.date)));
+    const k = pdfKit(JsPDF);
+    (S.pdf.kind === 'parent' ? buildParentReport : buildFullRecord)(k, p, E, periodLabel);
+    const kind = S.pdf.kind === 'parent' ? 'progress-report' : 'full-record';
+    k.doc.save(`ATA-${p.name.toLowerCase()}-${kind}-${madridDay(new Date())}.pdf`);
+    closeSheet(); toast('PDF ready ✓');
+  } catch(e) {
+    console.error(e);
+    toast(e.message === 'offline' ? 'No connection: the PDF tool needs internet' : 'Couldn’t create the PDF');
+    btn.disabled = false; btn.textContent = 'Download PDF';
+  }
+}
+
+/* Parent report: progress only. Nothing the player wrote privately to the coach. */
+function buildParentReport(k, p, E, periodLabel){
+  const { doc } = k;
+  const posts = E.filter(e => e.type === 'post'), dailies = E.filter(e => e.type === 'daily');
+  try { doc.addImage(LOGO.MONO_NAVY, 'PNG', k.M, k.y, 14, 13); } catch(e) {}
+  k.y += 18;
+  k.text('Almuñécar Tennis Academy', 10, k.MUTED, 'bold', 0, 0.5);
+  k.text(`${p.name} · progress report`, 22, k.NAVY, 'bold', 0, 2);
+  k.text(`${periodLabel} · ${new Date().toLocaleDateString(LOCALE,{day:'numeric',month:'long',year:'numeric'})}`, 10, k.MUTED, 'normal', 0, 4);
+  k.rule(k.NAVY);
+
+  if (S.pdf.note) { k.band('A note from the coach'); k.text(S.pdf.note, 11, k.INK, 'normal', 3, 3); }
+
+  // Summary
+  k.band('At a glance');
+  const days = new Set(E.filter(e => e.type !== 'coachprofile').map(e => madridDay(e.date))).size;
+  const enj = posts.map(e => e.data.enjoy_match).filter(v => typeof v === 'number');
+  k.row('Days with journal entries', `${days}`);
+  k.row('Matches logged', posts.length ? `${posts.length} (${posts.filter(isWin).length} won, ${posts.filter(e => e.data.result === 'Lost').length} lost)` : 'None in this period');
+  if (enj.length) k.row('Enjoyment when competing', `${f1(avg(enj))} out of 5`);
+  if (posts.length) k.row('Kept their process goal', `${posts.filter(e => e.data.process_ok === 'Yes').length} of ${posts.length} matches`);
+  if (p.challenge && p.challenge.text) {
+    const ch = dailies.map(e => e.data.challenge_done).filter(Boolean);
+    k.row('Challenge of the month', `${p.challenge.text}${ch.length ? ` (worked on it ${ch.filter(x => x === 'Yes').length} of ${ch.length} days)` : ''}`);
+  }
+
+  // Player card
+  const prof = p.entries.filter(e => e.type === 'profile'), cp = p.entries.find(e => e.type === 'coachprofile');
+  if (prof.length) {
+    k.band('Player card');
+    const cur = cardStats(prof[0].data), prev = prof[1] ? cardStats(prof[1].data) : null;
+    k.row('Overall (their own rating)', `${cur.ovr}${prev ? ` (${cur.ovr - prev.ovr >= 0 ? '+' : ''}${cur.ovr - prev.ovr} since ${new Date(prof[1].date).toLocaleDateString(LOCALE,{day:'numeric',month:'short'})})` : ''}`);
+    if (cp) k.row('Overall (coach’s rating)', `${cardStats(cp.data).ovr}${cp.data.pot ? ` · potential ${cp.data.pot}` : ''}`);
+    const names = { SRV:'Serve', RET:'Return', FH:'Forehand', BH:'Backhand', NET:'Net game', TCH:'Touch (slice, drop)', PHY:'Physical', MEN:'Mental' };
+    CATS.forEach(([c]) => { const v = cur.stats[c]; if (v == null) return; const pv = prev && prev.stats[c];
+      k.row(names[c], `${v}${pv != null && v !== pv ? ` (${v - pv > 0 ? '+' : ''}${v - pv})` : ''}${cp && cardStats(cp.data).stats[c] != null ? ` · coach: ${cardStats(cp.data).stats[c]}` : ''}`); });
+    k.text('Ratings from 1 to 99. Self-ratings at this age tend to be high; the useful part is the change over time.', 8.5, k.MUTED, 'italic', 3, 2);
+  }
+
+  // Matches
+  if (posts.length) {
+    k.band('Matches');
+    posts.forEach(e => {
+      const d = e.data;
+      k.row(new Date(e.date).toLocaleDateString(LOCALE,{weekday:'short',day:'numeric',month:'short'}),
+        [d.result, d.score, d.opponent ? 'vs ' + d.opponent : '', d.process_ok ? `process goal: ${d.process_ok.toLowerCase()}` : ''].filter(Boolean).join(' · '));
+      if (e.reply && e.reply.text) k.text(`Coach: ${e.reply.text}`, 9.5, k.NAVY, 'italic', 69, 1.5);
+    });
+  }
+
+  // In their own words (positive / forward-looking only)
+  const good = dailies.map(e => e.data.good).filter(Boolean).slice(-8);
+  const next = [...posts.map(e => e.data.train || e.data.change), ...E.filter(e => e.type === 'weekly').map(e => e.data.improve_next)].filter(Boolean).slice(-6);
+  const proud = [...posts.map(e => e.data.proud), ...E.filter(e => e.type === 'weekly').map(e => e.data.week_proud)].filter(Boolean).slice(-5);
+  if (good.length || next.length || proud.length) {
+    k.band('In their own words');
+    if (good.length) { k.text('Things they did well', 9, k.MUTED, 'bold', 3, 0.8); good.forEach(t => k.text('• ' + t, 10, k.INK, 'normal', 5, 0.6)); k.y += 1.5; }
+    if (proud.length) { k.text('Moments they’re proud of', 9, k.MUTED, 'bold', 3, 0.8); proud.forEach(t => k.text('• ' + t, 10, k.INK, 'normal', 5, 0.6)); k.y += 1.5; }
+    if (next.length) { k.text('What they want to work on', 9, k.MUTED, 'bold', 3, 0.8); next.forEach(t => k.text('• ' + t, 10, k.INK, 'normal', 5, 0.6)); k.y += 1.5; }
+  }
+
+  // Coach comments on weekly / daily entries
+  const comments = E.filter(e => e.type !== 'post' && e.reply && e.reply.text);
+  if (comments.length) { k.band('Coach comments'); comments.slice(-8).forEach(e => k.row(new Date(e.date).toLocaleDateString(LOCALE,{day:'numeric',month:'short'}), e.reply.text)); }
+
+  // Physical (optional)
+  if (S.pdf.pain) {
+    const pains = E.filter(e => e.data.pain && e.data.pain !== PAIN[0]);
+    k.band('Physical');
+    if (!pains.length) k.text('No pain or injuries reported in this period.', 10, k.INK, 'normal', 3, 2);
+    else pains.forEach(e => k.row(new Date(e.date).toLocaleDateString(LOCALE,{day:'numeric',month:'short'}), `${e.data.pain}${e.data.pain_where ? ' · ' + e.data.pain_where : ''}`));
+  }
+
+  k.y += 4;
+  k.text('This report shares progress only. What players write privately to their coach stays between them, which is what lets them be honest.', 8.5, k.MUTED, 'italic', 0, 0);
+  k.footer(`${p.name} · progress report · Almuñécar Tennis Academy`);
+}
+
+/* Full record: every answer, for the coach's own files */
+function buildFullRecord(k, p, E, periodLabel){
+  const { doc } = k;
+  try { doc.addImage(LOGO.MONO_NAVY, 'PNG', k.M, k.y, 14, 13); } catch(e) {}
+  k.y += 18;
+  k.text('Almuñécar Tennis Academy', 10, k.MUTED, 'bold', 0, 0.5);
+  k.text(`${p.name} · full record`, 22, k.NAVY, 'bold', 0, 2);
+  k.text(`${periodLabel} · generated ${new Date().toLocaleString(LOCALE,{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}`, 10, k.MUTED);
+  k.text('Coach only. Contains private answers of a minor: do not share with parents or third parties.', 9, k.ORANGE, 'bold', 0, 4);
+  k.rule(k.NAVY);
+  const posts = E.filter(e => e.type === 'post');
+  const card = p.entries.find(e => e.type === 'profile'), cp = p.entries.find(e => e.type === 'coachprofile');
+  k.text([`${E.length} ${E.length===1?'entry':'entries'}`, `${posts.length} ${posts.length===1?'match':'matches'} (${posts.filter(isWin).length}W ${posts.filter(e => e.data.result === 'Lost').length}L)`,
+    card ? `Card OVR ${cardStats(card.data).ovr}` : '', cp ? `Coach view ${cardStats(cp.data).ovr}` : '', cp && cp.data.pot ? `POT ${cp.data.pot}` : ''].filter(Boolean).join(' · '), 10, k.MUTED, 'normal', 0, 2);
+  if (p.challenge && p.challenge.text) k.text(`Challenge: ${p.challenge.text}`, 10, k.NAVY, 'italic', 0, 2);
+  k.rule();
+  if (!E.length) { k.text('No entries in this period.', 11, k.MUTED); k.footer('ATA Player Journal · full record · confidential'); return; }
+  let day = '';
+  E.forEach(e => {
+    const d = new Date(e.date);
+    if (d.toDateString() !== day) { day = d.toDateString(); k.band(d.toLocaleDateString(LOCALE,{weekday:'long',day:'numeric',month:'long',year:'numeric'})); }
+    k.ensure(18);
+    if (e.type === 'coachprofile') {
+      const cs = cardStats(e.data);
+      k.text(`Coach rating of the player card · ${d.toLocaleTimeString(LOCALE,{hour:'2-digit',minute:'2-digit'})}`, 11.5, k.ORANGE, 'bold', 0, 1);
+      k.text(`OVR ${cs.ovr}${e.data.pot ? ' · POT ' + e.data.pot : ''} · ` + CATS.map(([c]) => `${c} ${cs.stats[c] ?? '-'}`).join(' · '), 9.5, k.MUTED, 'normal', 3, 3);
+      return;
+    }
+    const F = FORMS[e.type];
+    k.text(`${F.title}${e.editedAt ? ' (edited)' : ''} · ${d.toLocaleTimeString(LOCALE,{hour:'2-digit',minute:'2-digit'})}`, 11.5, k.ORANGE, 'bold', 0, 1);
+    F.steps.forEach(st => {
+      const rows = expand(st.fields).filter(f => f.type !== 'info' && (!f.showIf || f.showIf(e.data))).map(f => [f.label, fmtVal(f, e.data[f.id])]).filter(([, v]) => v);
+      if (!rows.length) return;
+      k.text(st.title.toUpperCase(), 7.5, k.MUTED, 'bold', 3, 0.8);
+      rows.forEach(([l, v]) => k.row(l, v));
+    });
+    if (e.type === 'profile') k.text(`Card OVR ${cardStats(e.data).ovr}`, 10, k.NAVY, 'bold', 3, 1);
+    if (e.reply) { const r = e.reply, rx = { '👏':'Clap','🔥':'Fire','💪':'Strong','🧠':'Smart','❤️':'Heart','😂':'Laugh' }[r.reaction] || '';
+      k.text(`Coach reply${rx ? ' [' + rx + ']' : ''}: ${r.text || ''}`, 10, k.NAVY, 'italic', 3, 1); }
+    k.y += 1; k.rule();
+  });
+  k.footer(`${p.name} · full record · coach only · confidential`);
+}
+
+/* ===================== Coach briefing (daily / weekly) ===================== */
+/* Plain-language summary per player, built only from their answers (nothing leaves the app).
+   Status: green = fine, amber = keep an eye on it, red = step in. Thresholds are a starting
+   point: adjust them to each child's usual answers. */
+S.brief = 'week';
+const lbl2 = s => String(s || '').replace(/^\S+\s/, '');
+const mean = a => a.length ? avg(a) : null;
+const f1 = n => n == null ? '–' : (Math.round(n * 10) / 10).toString();
+
+function briefing(p, mode){
+  const now = Date.now();
+  const start = mode === 'day' ? new Date(madridDay(new Date()) + 'T00:00:00').getTime() : now - 7*864e5;
+  const prevStart = mode === 'day' ? start - 864e5 : now - 14*864e5;
+  const all = p.entries.filter(e => FORMS[e.type]);
+  const E = all.filter(e => new Date(e.date).getTime() >= start);
+  const P = all.filter(e => { const t = new Date(e.date).getTime(); return t >= prevStart && t < start; });
+  const flagWindow = all.filter(e => now - new Date(e.date) < (mode === 'day' ? 3 : 7) * 864e5);
+  const n = p.name, last = all[0];
+  const red = [], amber = [], good = [], lines = [];
+  const of = (list, t) => list.filter(e => e.type === t);
+  const nums = (list, t, k) => of(list, t).map(e => e.data[k]).filter(v => typeof v === 'number');
+
+  /* --- Nothing logged --- */
+  if (!E.length) {
+    const days = last ? Math.floor((now - new Date(last.date)) / 864e5) : null;
+    if (days === null) return { status:'grey', head:`${n} hasn’t started the journal yet.`, lines:[], flags:[], action:'Show them the app in the next session and do the first check-in together.' };
+    if (days >= 5) amber.push(`Silent for ${days} days. Usually means it’s become a chore, or something is off.`);
+  }
+
+  /* --- Daily check-ins: energy, fun, sleep --- */
+  const en = nums(E, 'daily', 'energy'), fun = nums(E, 'daily', 'fun');
+  const enP = mean(nums(P, 'daily', 'energy')), funP = mean(nums(P, 'daily', 'fun'));
+  if (en.length) {
+    const e = mean(en), f = mean(fun);
+    let s = `Energy ${f1(e)}/5`;
+    if (f != null) s += `, fun in training ${f1(f)}/5`;
+    if (enP != null && Math.abs(e - enP) >= 0.8) s += ` (energy ${e > enP ? 'up' : 'down'} from ${f1(enP)})`;
+    lines.push(s + '.');
+    if (e <= 2) red.push(`Very low energy (${f1(e)}/5). Check sleep, food and school load.`);
+    else if (e <= 2.6) amber.push(`Energy on the low side (${f1(e)}/5).`);
+    if (f != null && f <= 2) red.push(`Not enjoying training (${f1(f)}/5).`);
+    else if (f != null && funP != null && funP - f >= 1) amber.push(`Fun in training dropped (${f1(funP)} → ${f1(f)}).`);
+    if (f != null && f >= 4.2 && e >= 3.5) good.push('enjoying training and full of energy');
+  }
+  const sleeps = of(E, 'daily').map(e => e.data.sleep_hours).filter(Boolean);
+  if (sleeps.length) {
+    const short = sleeps.filter(x => ['Under 6', '6–7'].includes(x)).length;
+    if (short >= 3) amber.push(`Slept under 7 hours on ${short} of ${sleeps.length} nights.`);
+    else if (short === 0 && sleeps.length >= 2) good.push('sleeping well');
+  }
+
+  /* --- Pain --- */
+  const pains = flagWindow.filter(e => e.data.pain && e.data.pain !== PAIN[0]);
+  if (pains.length) {
+    const areas = {}; pains.forEach(e => { const k = oppKey(e.data.pain_where || 'unspecified'); areas[k] = (areas[k] || 0) + 1; });
+    const worst = pains.some(e => e.data.pain === 'Yes, it hurts');
+    const rep = Object.entries(areas).filter(([, c]) => c >= 2);
+    const where = [...new Set(pains.map(e => e.data.pain_where).filter(Boolean))].join(', ') || 'area not specified';
+    if (worst || rep.length) red.push(`Pain: ${worst ? '“it hurts”' : 'repeated'} (${where}). Check before the next session and adapt the load.`);
+    else amber.push(`Minor niggle reported (${where}).`);
+  } else if (of(E, 'daily').length || of(E, 'post').length) good.push('no pain');
+
+  /* --- Matches --- */
+  const posts = of(E, 'post');
+  if (posts.length) {
+    const w = posts.filter(isWin).length, l = posts.filter(e => e.data.result === 'Lost').length;
+    const ej = mean(posts.map(e => e.data.enjoy_match).filter(v => typeof v === 'number'));
+    const kept = posts.filter(e => e.data.process_ok === 'Yes').length;
+    const routine = posts.filter(e => e.data.routine === 'Almost always').length;
+    let s = `${posts.length === 1 ? 'One match' : posts.length + ' matches'} (${w}W ${l}L)`;
+    if (ej != null) s += `, enjoyed competing ${f1(ej)}/5`;
+    s += `. Kept their process goal in ${kept} of ${posts.length}, routine almost always in ${routine}.`;
+    lines.push(s);
+    const harsh = posts.filter(e => e.data.self_talk === 'Something mean about myself');
+    const down = posts.filter(e => /Frustrated|Down/.test(e.data.emotion || ''));
+    if (harsh.length && down.length) red.push(`Hard on themselves after ${harsh.length === 1 ? 'a match' : harsh.length + ' matches'}: felt ${down.map(e => lbl2(e.data.emotion).toLowerCase()).join(' / ')} and said something mean to themselves.`);
+    else if (harsh.length) amber.push(`Negative self-talk after mistakes in ${harsh.length} match${harsh.length > 1 ? 'es' : ''}. Train the key word on court.`);
+    if (ej != null && ej <= 2) amber.push(`Didn’t enjoy competing (${f1(ej)}/5).`);
+    if (kept === posts.length && posts.length >= 1) good.push('keeping their process goal');
+    if (posts.some(e => e.data.self_talk && e.data.self_talk !== 'Something mean about myself') && !harsh.length) good.push('kind to themselves after mistakes');
+  }
+
+  /* --- Pre-match nerves --- */
+  const pres = of(E, 'pre');
+  if (pres.length) {
+    const nv = mean(pres.map(e => e.data.nerves).filter(v => typeof v === 'number'));
+    const fear = pres.filter(e => (e.data.reading || '').includes('Scared')).length;
+    lines.push(`Before matches: nerves ${f1(nv)}/5${fear ? `, read as fear of losing ${fear === 1 ? 'once' : fear + ' times'}` : ', read as being ready'}.`);
+    if (fear >= 2) amber.push('Nerves read as fear more than once. Talk about what nerves are for.');
+    else if (fear === 1) amber.push('Nerves read as fear of losing before a match.');
+  }
+
+  /* --- Weekly feeling --- */
+  const wk = of(E, 'weekly')[0] || (mode === 'day' ? null : of(flagWindow, 'weekly')[0]);
+  if (wk) {
+    const d = wk.data;
+    lines.push(`Mood about tennis: ${lbl2(d.week_mood).toLowerCase() || '–'} · enjoying it ${d.enjoy ?? '–'}/5, feels they’re improving ${d.progress ?? '–'}/5, motivation ${d.motivation ?? '–'}/5.`);
+    if (/Stuck|Hard/.test(d.week_mood || '') && (d.stress >= 4 || d.enjoy <= 2)) red.push(`Tennis feels ${lbl2(d.week_mood).toLowerCase()} and ${d.stress >= 4 ? `stress off court is high (${d.stress}/5)` : `enjoyment is low (${d.enjoy}/5)`}.`);
+    else if (/Stuck|Hard/.test(d.week_mood || '')) amber.push(`Says tennis feels ${lbl2(d.week_mood).toLowerCase()} this week${d.week_hard ? ': “' + d.week_hard + '”' : ''}.`);
+    else if (d.stress >= 4) amber.push(`High stress outside tennis (${d.stress}/5).`);
+    if (d.motivation <= 2) amber.push(`Low motivation to train (${d.motivation}/5).`);
+  }
+  const wkAll = all.filter(e => e.type === 'weekly' && typeof e.data.enjoy === 'number').slice(0, 3);
+  if (wkAll.length === 3 && wkAll[0].data.enjoy < wkAll[1].data.enjoy && wkAll[1].data.enjoy < wkAll[2].data.enjoy)
+    red.push(`Enjoyment has dropped three weeks in a row (${wkAll[2].data.enjoy} → ${wkAll[0].data.enjoy}/5). Classic early sign of dropout.`);
+
+  /* --- Direct requests and messages --- */
+  const talk = flagWindow.filter(e => (e.data.talk || '').length);
+  if (talk.length) red.push('Asked to talk to you in person.');
+  const msgs = flagWindow.map(e => e.data.message || e.data.week_other).filter(Boolean);
+  if (msgs.length) amber.push(`Message for you: “${msgs[0]}”`);
+
+  /* --- Challenge --- */
+  const ch = of(E, 'daily').map(e => e.data.challenge_done).filter(Boolean);
+  if (p.challenge && p.challenge.text && ch.length) lines.push(`Challenge: worked on it ${ch.filter(x => x === 'Yes').length} of ${ch.length} days${ch.filter(x => x === 'Forgot').length ? ', forgot ' + ch.filter(x => x === 'Forgot').length : ''}.`);
+
+  /* --- Too perfect --- */
+  const dd = all.filter(e => e.type === 'daily').slice(0, 6);
+  if (dd.length >= 6 && dd.every(e => e.data.energy === 5 && e.data.fun === 5)) amber.push('All answers perfect and identical lately. Might be answering to please.');
+
+  /* --- Headline + action --- */
+  const status = red.length ? 'red' : amber.length ? 'amber' : 'green';
+  const period = mode === 'day' ? 'today' : 'this week';
+  let head;
+  if (!E.length) head = mode === 'day' ? `No entries from ${n} today yet.` : `${n} logged nothing this week.`;
+  else if (status === 'red') head = `${n} needs you ${period}.`;
+  else if (status === 'amber') head = `${n} is mostly fine ${period}, with something to keep an eye on.`;
+  else head = `${n} is in a good place ${period}${good.length ? ': ' + good.slice(0, 3).join(', ') : ''}.`;
+
+  let action = '';
+  if (talk.length) action = `Find 5 minutes alone with ${n} at the start of the next session. They asked for it.`;
+  else if (red.some(x => x.startsWith('Pain'))) action = `Check the pain with ${n} before training and adapt the load. Tell the parents if it continues.`;
+  else if (red.length) action = `Have a quiet chat with ${n} before or after the next session. Ask, don’t fix: “How are you finding tennis lately?”`;
+  else if (amber.length) action = `Mention it casually in the next session, and comment on it in your reply.`;
+  else if (E.length) action = `Tell ${n} something specific you noticed. Good ${mode === 'day' ? 'days' : 'weeks'} deserve feedback too.`;
+  else action = `Nothing to do. If it’s still empty in a few days, remind them in person.`;
+  const toReply = all.filter(e => ['post','weekly'].includes(e.type) && !(e.reply && e.reply.text) && now - new Date(e.date) < 14*864e5).length;
+  if (toReply) action += ` ${toReply} entr${toReply === 1 ? 'y' : 'ies'} still waiting for your comment.`;
+
+  /* All red flags; amber ones capped at 3 when there's a lot going on, so the important stays visible */
+  const ambers = red.length && amber.length > 3 ? [...amber.slice(0, 3), `+${amber.length - 3} smaller thing${amber.length - 3 > 1 ? 's' : ''} in the details below`] : amber;
+  return { status, head, lines, flags:[...red.map(t => ({ t, lvl:'red' })), ...ambers.map(t => ({ t, lvl:'amber' }))], action, count:E.length };
+}
+
+function briefingCard(p, mode, clickable){
+  const b = briefing(p, mode);
+  const tag = { red:'Step in', amber:'Keep an eye', green:'All good', grey:'Not started' }[b.status];
+  return `<${clickable ? 'button type="button"' : 'div'} class="brief ${b.status}" ${clickable ? `data-act="cplayer" data-val="${esc(p.id)}"` : ''}>
+    <div class="br-top"><span class="br-dot"></span><b>${esc(p.name)}</b><span class="br-tag">${tag}</span>${b.count ? `<small>${b.count} ${b.count === 1 ? 'entry' : 'entries'}</small>` : ''}</div>
+    <p class="br-head">${esc(b.head)}</p>
+    ${b.lines.length ? `<p class="br-text">${esc(b.lines.join(' '))}</p>` : ''}
+    ${b.flags.length ? `<ul class="br-flags">${b.flags.map(f => `<li class="${f.lvl}">${esc(f.t)}</li>`).join('')}</ul>` : ''}
+    <div class="br-act"><span>👉</span>${esc(b.action)}</div>
+  </${clickable ? 'button' : 'div'}>`;
+}
+function briefingSection(players, clickable){
+  const t = (m, l) => `<button type="button" class="${S.brief === m ? 'on' : ''}" data-act="brief" data-val="${m}">${l}</button>`;
+  return `<div class="stitle">Briefing</div>
+    <div class="chips briefsw">${t('day', 'Today')}${t('week', 'This week')}</div>
+    <div class="briefs">${players.map(p => briefingCard(p, S.brief, clickable)).join('')}</div>`;
 }
 
 /* ===================== Events ===================== */
@@ -2035,6 +2451,11 @@ $app.addEventListener('click', e => {
     case 'ratecoach': openCoachRating(); break;
     case 'showcard': showCardSheet(); break;
     case 'resetall': resetAll(b); break;
+    case 'exportpdf': openExportSheet(); break;
+    case 'brief': { S.brief = val; const y = window.scrollY; S.cPlayer ? renderCoachPlayer() : renderCoach(); window.scrollTo(0, y); break; }
+    case 'pdfopt': S.pdf[id] = val; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+      if (id === 'kind') $app.querySelector('.parentonly').hidden = val !== 'parent'; break;
+    case 'pdfgo': exportPDF(b); break;
     case 'crate': { S.cRate[id] = Number(val); b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); break; }
     case 'savecrate': saveCoachRating(b); break;
     case 'toggle': choose(id, val, true); break;
