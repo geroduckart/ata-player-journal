@@ -10,6 +10,7 @@
  *   POST /api/reply     header  x-pin (coach)    body { player, id, reaction, text } → coach replies to an entry
  *   POST /api/challenge header  x-pin (coach)    body { player, text }  → set the player's challenge of the month
  *   POST /api/coach-entry header x-pin (coach)   body { player, entry } → coach's own rating of the game profile
+ *   POST /api/reset-all header  x-pin (coach)    body { confirm:'DELETE' } → wipe ALL journal data (irreversible)
  *
  * Default PINs live here, on the server. The browser never sees them.
  * When a player changes their PIN in the app, it is stored (hashed) in Blobs
@@ -137,7 +138,8 @@ export default async (req, context) => {
         // the player, or the coach, can read
         const asCoach = playerIds().includes(player) && await pinMatches('coach', pin);
         if (!asCoach) { const err = await check(req, context, { role: 'player', player, pin }); if (err) return err; }
-        return json({ entries: await listEntries(player), challenge: await store().get(`challenge/${player}`, { type: 'json' }) });
+        const reset = await store().get('config/reset-at', { type: 'json' });
+        return json({ entries: await listEntries(player), challenge: await store().get(`challenge/${player}`, { type: 'json' }), resetAt: reset && reset.at });
       }
 
       if (req.method === 'POST') {
@@ -250,6 +252,22 @@ export default async (req, context) => {
       return json({ ok: true, entry });
     }
 
+    /* Coach wipes every entry, reply, card, challenge and custom PIN. Irreversible. */
+    if (path === '/api/reset-all' && req.method === 'POST') {
+      const err = await check(req, context, { role: 'coach', pin: String(req.headers.get('x-pin') || '') });
+      if (err) return err;
+      const body = await req.json().catch(() => ({}));
+      if (body.confirm !== 'DELETE') return json({ error: 'Type DELETE to confirm' }, 400);
+      const s = store();
+      let deleted = 0;
+      for (const prefix of ['entries/', 'challenge/', 'config/pin-overrides']) {
+        const { blobs } = await s.list({ prefix });
+        for (const b of blobs) { await s.delete(b.key); deleted++; }
+      }
+      await s.setJSON('config/reset-at', { at: new Date().toISOString() });  // tells every phone to clear its copy
+      return json({ ok: true, deleted });
+    }
+
     /* Coach resets a player's PIN back to the default */
     if (path === '/api/pin-reset' && req.method === 'POST') {
       const err = await check(req, context, { role: 'coach', pin: String(req.headers.get('x-pin') || '') });
@@ -270,4 +288,4 @@ export default async (req, context) => {
   }
 };
 
-export const config = { path: ['/api/login', '/api/entries', '/api/coach', '/api/pin', '/api/pin-reset', '/api/reply', '/api/challenge', '/api/coach-entry'] };
+export const config = { path: ['/api/login', '/api/entries', '/api/coach', '/api/pin', '/api/pin-reset', '/api/reply', '/api/challenge', '/api/coach-entry', '/api/reset-all'] };

@@ -317,6 +317,51 @@ html.dark-top .toast{background:#fff;color:var(--navy)}
 .mini5 button span{font-size:18px}
 .sheet .pgroup{margin-top:12px}
 
+/* ===== Danger zone ===== */
+.danger{margin-top:40px;border:1.5px solid #F2C4B3;background:#FFF7F4;border-radius:var(--radius);padding:18px;text-align:center}
+.danger h4{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#B8431A;font-weight:700}
+.danger p{font-size:13px;color:var(--muted);line-height:1.5;margin:6px auto 12px;max-width:38ch}
+.danger .dz{width:100%;max-width:240px;height:52px;display:block;margin:0 auto 10px;border:1.5px solid #F2C4B3;border-radius:14px;text-align:center;font-size:18px;font-weight:700;letter-spacing:.2em;background:#fff}
+.danger .dz:focus{border-color:#B8431A}
+.danger .dz::placeholder{letter-spacing:.05em;font-weight:500;font-size:15px}
+.dzbtn{background:#B8431A;color:#fff;max-width:280px}
+
+/* ===== Top widgets ===== */
+.widgets{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.wg{border-radius:var(--radius);padding:14px;min-height:150px;display:flex;flex-direction:column;text-align:left;width:100%;position:relative;overflow:hidden;transition:transform 160ms var(--ease-out)}
+button.wg:active{transform:scale(.97)}
+.wg-card{color:var(--navy);background:linear-gradient(155deg,#F4E2A1 0%,#D8B65A 45%,#B8913A 100%);box-shadow:0 8px 20px rgba(15,23,32,.14);clip-path:polygon(0 0,100% 0,100% 88%,50% 100%,0 88%);padding-bottom:22px;align-items:center;text-align:center}
+.wg-card.silver{background:linear-gradient(155deg,#F1F3F6 0%,#C9CED6 50%,#9DA5B1 100%)}
+.wg-card.bronze{background:linear-gradient(155deg,#F0CDA8 0%,#C98F5B 50%,#9C6537 100%)}
+.wg-card.special{background:radial-gradient(120% 80% at 80% 0%,#1D3A66 0%,#12294A 45%,#0B1B33 100%);color:#fff}
+.wg-card.special .mc-top b{color:var(--orange)}
+.wg-card::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.4) 45%,transparent 60%);transform:translateX(-130%);animation:shine 1.6s 500ms var(--ease-out) both;pointer-events:none}
+.mc-top{display:flex;align-items:center;justify-content:center;gap:10px;width:100%}
+.mc-top b{font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.mc-top img{height:30px;width:auto;opacity:.85}
+.mc-ovr{font-size:10.5px;font-weight:700;letter-spacing:.14em;margin-top:4px;opacity:.8}
+.mc-name{font-size:15px;font-weight:700;letter-spacing:.08em;margin-top:8px;padding-top:6px;border-top:1px solid rgba(18,41,74,.2);width:100%}
+.wg-card.special .mc-name{border-color:rgba(255,255,255,.2)}
+.mc-g{font-size:12px;font-weight:700;margin-top:4px;opacity:.85}
+.wg-card.empty{background:var(--card);border:2px dashed var(--line);box-shadow:none;clip-path:none;justify-content:center}
+.wg-card.empty::after{display:none}
+.mc-q{font-size:40px;font-weight:700;color:var(--line);line-height:1}
+.mc-t{font-size:14px;font-weight:700;margin-top:6px}
+.mc-s{font-size:13px;font-weight:700;color:var(--orange);margin-top:4px}
+.wg-week{background:var(--navy);color:#fff}
+.ww-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--orange);text-align:center}
+.weekdots.light{gap:6px;margin:12px 0 8px}
+.weekdots.light .wd i{width:12px;height:12px}
+.ww-n{text-align:center;font-size:13px;color:rgba(255,255,255,.7)}
+.ww-n b{font-size:22px;color:#fff;margin-right:2px}
+.ww-s{margin-top:auto;padding-top:8px;text-align:center;font-size:12px;font-weight:700;color:rgba(255,255,255,.75)}
+.ww-s.ok{color:#7FD8AE}
+.ww-s.go{color:var(--orange);width:100%;min-height:32px}
+.hero{padding:22px 24px}
+.hero h2{margin-bottom:4px}
+.sheet .fut-wrap{margin-top:6px}
+@media (max-width:360px){ .mc-top b{font-size:36px} .mc-top img{height:24px} .weekdots.light{gap:4px} .weekdots.light .wd i{width:10px;height:10px} }
+
 /* ===== 1-99 rating ===== */
 .r99{text-align:center;margin-bottom:10px}
 .r99-n{font-size:46px;font-weight:700;color:var(--orange);line-height:1;font-variant-numeric:tabular-nums}
@@ -1261,6 +1306,40 @@ function weekDots(E){
   return { html:`<div class="weekdots">${dots}</div>`, n };
 }
 
+/* ===================== Top widgets: mini card + this week ===================== */
+function miniCardHTML(E, name, own){
+  const ps = E.filter(e => e.type === 'profile');
+  if (!ps.length) return own
+    ? `<button type="button" class="wg wg-card empty" data-act="start" data-val="profile"><div class="mc-q">?</div><div class="mc-t">Your player card</div><div class="mc-s">Create it →</div></button>`
+    : `<div class="wg wg-card empty"><div class="mc-q">?</div><div class="mc-t">No card yet</div></div>`;
+  const cur = cardStats(ps[0].data), prev = ps[1] ? cardStats(ps[1].data) : null, t = tierOf(cur.ovr);
+  const cp = E.find(e => e.type === 'coachprofile'), pot = cp && typeof cp.data.pot === 'number' ? cp.data.pot : null;
+  const g = prev ? cur.ovr - prev.ovr : null;
+  return `<button type="button" class="wg wg-card ${t}" data-act="showcard" aria-label="Open player card">
+    <div class="mc-top"><b>${cur.ovr}</b><img src="${t === 'special' ? LOGO.MONO_WHITE : LOGO.MONO_NAVY}" alt=""></div>
+    <div class="mc-ovr">OVR${pot ? ` · POT ${pot}` : ''}</div>
+    <div class="mc-name">${esc(name.toUpperCase())}</div>
+    <div class="mc-g">${g !== null ? `${g >= 0 ? '▲ +' : '▼ '}${g}` : t[0].toUpperCase() + t.slice(1)}</div>
+  </button>`;
+}
+function weekWidgetHTML(E, own){
+  const list = E.filter(e => FORMS[e.type]);
+  const wd = weekDots(list);
+  const doneToday = list.some(e => e.type === 'daily' && madridDay(e.date) === madridDay(new Date()));
+  return `<div class="wg wg-week">
+    <div class="ww-h">This week</div>
+    ${wd.html.replace('class="weekdots"', 'class="weekdots light"')}
+    <div class="ww-n"><b>${wd.n}</b> ${wd.n === 1 ? 'entry' : 'entries'}</div>
+    ${own ? (doneToday ? '<div class="ww-s ok">✓ Today’s check-in done</div>' : '<button type="button" class="ww-s go" data-act="start" data-val="daily">Today’s check-in →</button>')
+          : `<div class="ww-s">${doneToday ? '✓ Checked in today' : 'No check-in today'}</div>`}
+  </div>`;
+}
+function showCardSheet(){
+  const E = S.coach ? S.squad.find(x => x.id === S.cPlayer).entries : getEntries();
+  const name = S.coach ? playerName(S.cPlayer) : S.user.name;
+  openInfoSheet(playerCardHTML(E, name, !S.coach));
+}
+
 /* ===================== "What this is for" ===================== */
 const kIntro = () => 'ata_intro_' + S.user.id;
 const introDue = () => { const t = store.get(kIntro(), 0); return !t || Date.now() - t > 90*864e5; };
@@ -1357,12 +1436,8 @@ function renderHome(enter){
       <img class="wm" src="${LOGO.MONO_WHITE}" alt="">
       <div class="date">${new Date().toLocaleDateString(LOCALE,{weekday:'long',day:'numeric',month:'long'})}</div>
       <h2>${greeting()},<br><span>${esc(dotted(first))}</span></h2>
-      ${wd.html}
-      <div class="pillrow">
-        <span class="pill o">This week: ${wd.n} ${wd.n===1?'entry':'entries'}</span>
-        <span class="pill">${matches.length} ${matches.length===1?'match':'matches'} logged</span>
-      </div>
     </div>
+    <div class="widgets">${miniCardHTML(E, S.user.name, true)}${weekWidgetHTML(E, true)}</div>
     ${coachRepliesHTML(E)}
     ${challengeCard()}
     <div class="stitle">Match day</div>
@@ -1372,8 +1447,7 @@ function renderHome(enter){
     ${pend ? `<div class="pending">⏳ ${pend} ${pend>1?'entries':'entry'} waiting to be sent. They’ll send automatically when you’re back online.</div>` : ''}
     <div class="stitle">Your progress</div>
     <div class="stats">${statCard('Energy',E,'daily','energy')}${statCard('Fun',E,'daily','fun')}${statCard('Match fun',E,'post','enjoy_match')}</div>
-    <div class="stitle">My player card</div>
-    ${playerCardHTML(E, S.user.name, true)}
+    <div class="stitle">My shot ratings</div>
     ${profileHTML(E, true)}
     <div class="stitle">Scouting file</div>
     ${scoutListHTML(E, true)}
@@ -1388,7 +1462,12 @@ const onPlayerHome = () => !S.coach && !S.form && !!$app.querySelector('.top') &
 async function syncEntries(){
   if (!S.user) return;
   try {
-    const { entries, challenge } = await api('/entries', { pin:S.pin, player:S.user.id });
+    const { entries, challenge, resetAt } = await api('/entries', { pin:S.pin, player:S.user.id });
+    if (resetAt && store.get('ata_reset_seen_' + S.user.id, '') !== resetAt) {
+      ['ata_entries_','ata_challenge_','ata_seen_replies_','ata_intro_'].forEach(k => store.del(k + S.user.id));
+      Object.keys(FORMS).forEach(f => store.del(kDraft(f)));
+      store.set('ata_reset_seen_' + S.user.id, resetAt);
+    }
     S.challenge = challenge || null; store.set('ata_challenge_' + S.user.id, S.challenge);
     const local = getEntries();
     const ids = new Set(entries.map(e => e.id));
@@ -1860,8 +1939,21 @@ async function renderCoach(enter){
     <div class="actions">${S.squad.map(card).join('')}</div>
     <div class="stitle">Latest activity</div>
     ${all.length ? historyHTML(all.slice(0,30), e => e.who, e => e.pid) : `<div class="empty">No entries yet.<br>They’ll appear here as soon as your players send them.</div>`}
+    <div class="danger">
+      <h4>Danger zone</h4>
+      <p>Delete every entry, reply, player card, challenge and custom PIN. Players’ phones clear their copy next time they open the app. This can’t be undone.</p>
+      <input class="dz" type="text" autocapitalize="characters" autocomplete="off" placeholder="Type DELETE" aria-label="Type DELETE to confirm">
+      <button type="button" class="btn btn-block dzbtn" data-act="resetall">Delete all journal data</button>
+    </div>
     <div class="foot"><div class="brand" style="color:var(--muted)">We don’t teach you our tennis. We help you develop yours.</div></div>
   </div>`;
+}
+async function resetAll(btn){
+  if (($app.querySelector('.dz').value || '').trim() !== 'DELETE') { toast('Type DELETE to confirm'); return; }
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try { const r = await api('/reset-all', { method:'POST', pin:S.coachPin, body:{ confirm:'DELETE' } });
+        S.squad = null; toast(`All data deleted (${r.deleted} items)`); renderCoach(true); window.scrollTo(0,0); }
+  catch(e) { toast('Couldn’t delete. Try again.'); btn.disabled = false; btn.textContent = 'Delete all journal data'; }
 }
 
 function renderCoachPlayer(enter){
@@ -1882,13 +1974,12 @@ function renderCoachPlayer(enter){
       <img class="wm" src="${LOGO.MONO_WHITE}" alt="">
       <div class="date">${E[0] ? 'Last entry ' + ago(E[0].date) : 'No entries yet'}</div>
       <h2><span>${esc(dotted(p.name))}</span></h2>
-      ${weekDots(E.filter(e => FORMS[e.type])).html}
       <div class="pillrow">
-        <span class="pill o">This week: ${weekDots(E.filter(e => FORMS[e.type])).n}</span>
         <span class="pill">${matches.length} ${matches.length===1?'match':'matches'} · ${won}W ${lost}L</span>
         <span class="pill">${(PLAYERS.find(x => x.id===p.id)||{}).level === 'reflective' ? 'Reflective level' : 'Simple level'}</span>
       </div>
     </div>
+    <div class="widgets">${miniCardHTML(E, p.name, false)}${weekWidgetHTML(E, false)}</div>
     ${al.length ? `<div class="stitle">Needs your attention</div><div class="alerts">${al.slice(0,8).map(a => alertHTML(a)).join('')}</div>` : ''}
     <div class="stitle">Challenge of the month</div>
     ${challengeEditor(p)}
@@ -1901,8 +1992,7 @@ function renderCoachPlayer(enter){
     </div>
     <div class="stitle">Weekly feeling <span class="hint">last 10</span></div>
     <div class="stats">${statCard('Enjoyment',E,'weekly','enjoy')}${statCard('Improving',E,'weekly','progress')}${statCard('Motivation',E,'weekly','motivation')}</div>
-    <div class="stitle">Player card</div>
-    ${playerCardHTML(E, p.name, false)}
+    <div class="stitle">Shot ratings</div>
     ${profileHTML(E, false)}
     <button type="button" class="btn btn-ghost btn-block mt8" data-act="ratecoach">${E.some(e => e.type==='coachprofile') ? 'Update your rating & potential' : 'Add your rating & potential'}</button>
     <div class="stitle">Scouting file</div>
@@ -1943,6 +2033,8 @@ $app.addEventListener('click', e => {
     case 'savechallenge': saveChallenge(b, false); break;
     case 'clearchallenge': saveChallenge(b, true); break;
     case 'ratecoach': openCoachRating(); break;
+    case 'showcard': showCardSheet(); break;
+    case 'resetall': resetAll(b); break;
     case 'crate': { S.cRate[id] = Number(val); b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); break; }
     case 'savecrate': saveCoachRating(b); break;
     case 'toggle': choose(id, val, true); break;
