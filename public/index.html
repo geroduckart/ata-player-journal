@@ -289,8 +289,18 @@ html.dark-top .toast{background:#fff;color:var(--navy)}
 .cheditor{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
 .chrow{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px}
 .chrow .btn{padding:0 22px}
+.link.inline{min-height:0;padding:0;font-size:12px;color:var(--navy);text-decoration:underline}
 .fine{font-size:12px;color:var(--muted);text-align:center;margin:10px auto 0;line-height:1.45}
 .mt8{margin-top:10px}
+.levels{background:var(--navy);color:#fff;border-radius:var(--radius);padding:16px;margin-top:14px;text-align:left}
+.levels .lv-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700;text-align:center;margin-bottom:8px}
+.levels div:not(.lv-h){display:flex;flex-direction:column;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.levels b{font-size:15px}
+.levels span{font-size:13px;color:rgba(255,255,255,.75);margin-top:1px}
+.levels p{font-size:13px;color:rgba(255,255,255,.75);margin-top:10px;text-align:center}
+.action.done-today{border-color:#BFE5D3;background:#F3FBF7}
+.action.done-today .ic{background:#E3F5EC}
+.action.done-today .draft{color:var(--ok)}
 .plan-h{font-size:13px;font-weight:700;margin-bottom:10px;text-align:center;color:#fff}
 .plv{font-size:13px!important;font-weight:600;color:var(--muted)}
 .ptrack{position:relative;overflow:visible}
@@ -306,6 +316,53 @@ html.dark-top .toast{background:#fff;color:var(--navy)}
 .mini5 button{min-height:40px;padding:6px 0;border-radius:10px}
 .mini5 button span{font-size:18px}
 .sheet .pgroup{margin-top:12px}
+
+/* ===== 1-99 rating ===== */
+.r99{text-align:center;margin-bottom:10px}
+.r99-n{font-size:46px;font-weight:700;color:var(--orange);line-height:1;font-variant-numeric:tabular-nums}
+.r99-l{font-size:14px;font-weight:600;color:var(--navy);margin-top:4px;min-height:1.3em}
+.pl small.plv{font-size:12px!important;color:var(--muted);font-weight:500;margin-right:6px}
+
+/* ===== Player card (FIFA style) ===== */
+.fut-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:14px}
+.fut{position:relative;width:min(300px,82vw);aspect-ratio:3/3.8;padding:20px 22px 16px;color:var(--navy);overflow:hidden;
+  clip-path:polygon(50% 0,100% 6%,100% 88%,50% 100%,0 88%,0 6%);
+  background:linear-gradient(155deg,#F4E2A1 0%,#D8B65A 45%,#B8913A 100%);box-shadow:0 18px 40px rgba(15,23,32,.25);
+  animation:cardIn 600ms var(--ease-out) both}
+.fut.silver{background:linear-gradient(155deg,#F1F3F6 0%,#C9CED6 50%,#9DA5B1 100%)}
+.fut.bronze{background:linear-gradient(155deg,#F0CDA8 0%,#C98F5B 50%,#9C6537 100%)}
+.fut.special{background:radial-gradient(120% 80% at 80% 0%,#1D3A66 0%,#12294A 45%,#0B1B33 100%);color:#fff}
+.fut.special .fut-ovr b,.fut.special .fs b{color:var(--orange)}
+.fut-shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.45) 45%,transparent 60%);transform:translateX(-120%);animation:shine 1.6s 400ms var(--ease-out) both;pointer-events:none}
+.fut-top{display:flex;justify-content:space-between;align-items:flex-start;margin-top:10px}
+.fut-ovr{display:flex;flex-direction:column;align-items:center;line-height:1}
+.fut-ovr b{font-size:54px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.fut-ovr span{font-size:12px;font-weight:700;letter-spacing:.16em;margin-top:2px}
+.fut-ovr i{font-style:normal;font-size:11px;font-weight:700;margin-top:6px;padding:3px 8px;border-radius:999px;background:rgba(18,41,74,.12)}
+.fut.special .fut-ovr i{background:rgba(255,255,255,.12)}
+.fut-logo{height:46px;width:auto;opacity:.85}
+.fut-name{font-size:22px;font-weight:700;letter-spacing:.06em;text-align:center;margin-top:14px;padding-top:10px;border-top:1px solid currentColor;border-color:rgba(18,41,74,.2)}
+.fut.special .fut-name{border-color:rgba(255,255,255,.2)}
+.fut-tier{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-align:center;opacity:.65;margin-top:2px}
+.fut-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin:14px 6px 0}
+.fs{display:flex;align-items:baseline;gap:7px}
+.fs b{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;min-width:30px}
+.fs span{font-size:13px;font-weight:700;letter-spacing:.06em;opacity:.8}
+.fs em{font-style:normal;font-size:10px;font-weight:700;color:var(--ok)}
+.fs em.down{color:#B8431A}
+.fut-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:14px}
+.fut-meta span{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.fut-meta span.up{background:#E8F6F0;color:var(--ok);border-color:transparent}
+.fut-meta span.down{background:var(--orange-soft);color:var(--orange);border-color:transparent}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.96) rotateX(8deg)}to{opacity:1;transform:none}}
+@keyframes shine{to{transform:translateX(120%)}}
+.crrow input[type=range]{flex:1;height:30px}
+.crl small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.crv{width:30px;text-align:right;font-variant-numeric:tabular-nums;color:var(--orange)}
+.potbox{margin-top:16px;text-align:center;background:var(--bg);border-radius:14px;padding:14px}
+.potbox label{font-weight:700;font-size:15px}
+.potbox p{font-size:13px;color:var(--muted);margin:2px auto 10px}
+.potbox .pinfield{letter-spacing:.1em;max-width:160px;margin:0 auto}
 
 /* ===== 5-point labelled scales ===== */
 .s5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
@@ -511,9 +568,17 @@ const SC = {
   fatigue:    [['🌱','Fresh'],['🙂','Fine'],['😮‍💨','Tired'],['😴','Very tired'],['🥵','Empty tank']],
   grow:       [['🐌','Not really'],['🙂','A little'],['👍','Some'],['📈','A lot'],['🚀','Loads']],
   bigpts:     [['🙈','I hid'],['😬','Nervy'],['🙂','OK'],['💪','Brave'],['🦁','Went for it']],
-  shot:       [['🌱','Can’t yet'],['🎯','In practice'],['🔁','In rallies'],['🏆','In matches'],['🦁','Under pressure']],
-  mind:       [['🌱','Rarely'],['🎯','In practice'],['🔁','Some matches'],['🏆','Most matches'],['🦁','Under pressure']],
+  shot:       [['🌱','Still learning'],['🎯','OK in practice'],['🔁','Solid in rallies'],['🏆','Works in matches'],['🦁','My weapon']],
+  mind:       [['🌱','Hardly ever'],['🎯','Sometimes'],['🔁','Often'],['🏆','Most of the time'],['🦁','Even under pressure']],
 };
+/* Game profile: a 1-99 rating (FIFA style) that also shows the level in words */
+const LEVELS = {
+  shot: [['🌱','Still learning'],['🎯','OK in practice'],['🔁','Solid in rallies'],['🏆','Works in matches'],['🦁','My weapon']],
+  mind: [['🌱','Hardly ever'],['🎯','Sometimes'],['🔁','Often'],['🏆','Most of the time'],['🦁','Even under pressure']],
+};
+const lvlIdx = v => Math.max(0, Math.min(4, Math.floor((v - 1) / 20)));
+const lvl = (name, v) => { const l = LEVELS[name][lvlIdx(v)]; return `${l[0]} ${l[1]}`; };
+const r99 = (id, label, levels, extra = {}) => ({ id, type:'rate99', label, levels, ...extra });
 const s5 = (id, label, scale, extra = {}) => ({ id, type:'scale5', label, scale:SC[scale], ...extra });
 
 const FORMS = {
@@ -665,39 +730,49 @@ const FORMS = {
     ]
   },
 
-  /* Game profile: every 3 months. 5 descriptive levels; the coach adds their own rating. */
+  /* Game profile: every 3 months. 1-99 per item (FIFA style); the level in words keeps it honest.
+     The coach adds their own rating and the potential (POT). */
   profile: {
-    title: 'My game profile', tag: 'Profile', icon: '🎾',
-    desc: 'Every 3 months · where can you use each shot?',
-    indicator: d => `FH ${d.fh}/5 · BH ${d.bh}/5 · Serve ${d.serve_flat}/5`,
-    done: { h: 'Profile updated.', p: 'Your coach will add their view next to yours. The interesting part is where you don’t agree.' },
+    title: 'My player card', tag: 'Card', icon: '🃏',
+    desc: 'Every 3 months · rate your game from 1 to 99',
+    indicator: d => `OVR ${cardStats(d).ovr} · FH ${d.fh} · BH ${d.bh} · SRV ${cardStats(d).stats.SRV}`,
+    done: { h: 'Card updated.', p: 'Your coach will add their view and your potential. Remember: the number that matters is how much it grows.' },
     steps: [
-      { title: 'Groundstrokes', help: 'For each shot: where can you already use it? Be honest, nobody is judging.', fields: [
-        s5('fh', 'Forehand', 'shot', { note:{ id:'fh_note', label:'About your forehand', ph:'e.g. strong cross-court, struggles on high balls' } }),
-        s5('bh', 'Backhand', 'shot', { note:{ id:'bh_note', label:'About your backhand', ph:'e.g. two-handed, good down the line' } }),
-        s5('slice', 'Slice', 'shot', { note:{ id:'slice_note', label:'About your slice' } }),
-        s5('return', 'Return of serve', 'shot', { note:{ id:'return_note', label:'About your return' } }),
+      { title: 'Groundstrokes', help: 'Give each shot a score from 1 to 99. The words under the number tell you what that score means.', fields: [
+        { id:'_levels', type:'info', render: () => `<div class="levels">
+          <div class="lv-h">What the scores mean</div>
+          <div><b>1-20 · 🌱 Still learning</b><span>It doesn’t work yet, I’m working on it</span></div>
+          <div><b>21-40 · 🎯 OK in practice</b><span>It works when I’m drilling it with my coach</span></div>
+          <div><b>41-60 · 🔁 Solid in rallies</b><span>It holds up when I rally or play points in training</span></div>
+          <div><b>61-80 · 🏆 Works in matches</b><span>I can use it in real matches</span></div>
+          <div><b>81-99 · 🦁 My weapon</b><span>It wins me points, even at 5-5 in the third</span></div>
+          <p>Honest beats high: your coach rates you too, and the fun part is comparing.</p></div>` },
+        r99('fh', 'Forehand', 'shot', { note:{ id:'fh_note', label:'About your forehand', ph:'e.g. strong cross-court, struggles on high balls' } }),
+        r99('bh', 'Backhand', 'shot', { note:{ id:'bh_note', label:'About your backhand', ph:'e.g. two-handed, good down the line' } }),
+        r99('slice', 'Slice', 'shot', { note:{ id:'slice_note', label:'About your slice' } }),
+        r99('return', 'Return of serve', 'shot', { note:{ id:'return_note', label:'About your return' } }),
       ]},
       { title: 'At the net', fields: [
-        s5('fv', 'Forehand volley', 'shot', { note:{ id:'fv_note', label:'About your forehand volley' } }),
-        s5('bv', 'Backhand volley', 'shot', { note:{ id:'bv_note', label:'About your backhand volley' } }),
-        s5('overhead', 'Smash', 'shot', { note:{ id:'overhead_note', label:'About your smash' } }),
-        s5('drop', 'Drop shot', 'shot', { note:{ id:'drop_note', label:'About your drop shot' } }),
+        r99('fv', 'Forehand volley', 'shot', { note:{ id:'fv_note', label:'About your forehand volley' } }),
+        r99('bv', 'Backhand volley', 'shot', { note:{ id:'bv_note', label:'About your backhand volley' } }),
+        r99('overhead', 'Smash', 'shot', { note:{ id:'overhead_note', label:'About your smash' } }),
+        r99('drop', 'Drop shot', 'shot', { note:{ id:'drop_note', label:'About your drop shot' } }),
       ]},
       { title: 'Serve', fields: [
-        s5('serve_flat', 'Flat serve', 'shot', { note:{ id:'serve_flat_note', label:'About your flat serve' } }),
-        s5('serve_slice', 'Slice serve', 'shot', { note:{ id:'serve_slice_note', label:'About your slice serve' } }),
-        s5('serve_kick', 'Kick serve', 'shot', { note:{ id:'serve_kick_note', label:'About your kick serve' } }),
+        r99('serve_flat', 'Flat serve', 'shot', { note:{ id:'serve_flat_note', label:'About your flat serve' } }),
+        r99('serve_slice', 'Slice serve', 'shot', { note:{ id:'serve_slice_note', label:'About your slice serve' } }),
+        r99('serve_kick', 'Kick serve', 'shot', { note:{ id:'serve_kick_note', label:'About your kick serve' } }),
       ]},
       { title: 'Body', fields: [
-        s5('speed', 'Speed on court', 'shot', { note:{ id:'speed_note', label:'About your movement' } }),
-        s5('endurance', 'Endurance in long matches', 'shot', { note:{ id:'endurance_note', label:'About your endurance' } }),
+        r99('speed', 'Speed on court', 'shot', { note:{ id:'speed_note', label:'About your movement' } }),
+        r99('endurance', 'Endurance in long matches', 'shot', { note:{ id:'endurance_note', label:'About your endurance' } }),
       ]},
-      { title: 'Mind', help: 'Same idea: where can you already do it?', fields: [
-        s5('m_focus', 'Staying focused', 'mind'),
-        s5('m_fight', 'Fighting for every ball', 'mind'),
-        s5('m_pressure', 'Playing well under pressure', 'mind'),
-        s5('m_mistakes', 'Letting go of mistakes', 'mind'),
+      { title: 'Mind', help: 'Now your head: how often can you do this in a match?', fields: [
+        r99('m_confidence', 'Confidence in my game', 'mind'),
+        r99('m_focus', 'Staying focused', 'mind'),
+        r99('m_fight', 'Fighting for every ball', 'mind'),
+        r99('m_pressure', 'Playing well under pressure', 'mind'),
+        r99('m_mistakes', 'Letting go of mistakes', 'mind'),
         { id:'best', type:'text', label:'Your best shot right now', optional:true, ph:'e.g. forehand inside-out' },
         { id:'improve', type:'text', label:'The shot you most want to improve', optional:true, ph:'e.g. kick serve' },
       ]},
@@ -719,6 +794,9 @@ const kEntries = () => 'ata_entries_' + S.user.id;
 const kDraft = f => 'ata_draft_' + S.user.id + '_' + f;
 const getEntries = () => store.get(kEntries(), []);
 const setEntries = e => store.set(kEntries(), e);
+/* Calendar day in Spain: a daily check-in can be edited until midnight, then it locks */
+const madridDay = d => new Date(d).toLocaleDateString('en-CA', { timeZone:'Europe/Madrid' });
+const todayDaily = () => getEntries().find(e => e.type === 'daily' && madridDay(e.date) === madridDay(new Date()));
 const playerName = id => (PLAYERS.find(p => p.id === id) || { name: id }).name;
 
 const LOCALE = 'en-GB';
@@ -860,7 +938,7 @@ function histItem(e, who, coachPid){
   const pending = e.sent === false ? ' · ⏳' : '';
   const mark = coachPid ? (e.reply ? `<span class="rmark" title="Replied">${e.reply.reaction || '💬'}</span>` : (['post','weekly'].includes(e.type) && Date.now() - new Date(e.date) < 14*864e5 ? '<span class="rdot" title="Waiting for your comment"></span>' : ''))
                         : (e.reply ? `<span class="rmark">${e.reply.reaction || '💬'}</span>` : '');
-  return `<details class="hist"><summary><span class="tag ${cls}">${F.tag}</span><div class="sumtxt"><div class="when">${who?`<b>${esc(who)}</b> · `:''}${fmtDate(e.date)}${pending}</div><div class="ind">${esc(F.indicator(e.data))}</div></div>${mark}</summary><div class="detail">${replyView(e.reply)}${body}${coachPid ? replyForm(e, coachPid) : ''}</div></details>`;
+  return `<details class="hist"><summary><span class="tag ${cls}">${F.tag}</span><div class="sumtxt"><div class="when">${who?`<b>${esc(who)}</b> · `:''}${fmtDate(e.date)}${e.editedAt ? ' · edited' : ''}${pending}</div><div class="ind">${esc(F.indicator(e.data))}</div></div>${mark}</summary><div class="detail">${replyView(e.reply)}${body}${coachPid ? replyForm(e, coachPid) : ''}</div></details>`;
 }
 
 /* ===================== Game profile ===================== */
@@ -869,23 +947,71 @@ const PROFILE_SHOTS = [
   ['fv','Forehand volley'], ['bv','Backhand volley'], ['overhead','Smash'], ['drop','Drop shot'],
   ['serve_flat','Flat serve'], ['serve_slice','Slice serve'], ['serve_kick','Kick serve'],
   ['speed','Speed'], ['endurance','Endurance'],
-  ['m_focus','Focus'], ['m_fight','Fighting spirit'], ['m_pressure','Under pressure'], ['m_mistakes','Letting go of mistakes'],
+  ['m_confidence','Confidence'], ['m_focus','Focus'], ['m_fight','Fighting spirit'], ['m_pressure','Under pressure'], ['m_mistakes','Letting go of mistakes'],
 ];
-const PROFILE_GROUPS = { fh:'Groundstrokes', fv:'At the net', serve_flat:'Serve', speed:'Body', m_focus:'Mind' };
+const PROFILE_GROUPS = { fh:'Groundstrokes', fv:'At the net', serve_flat:'Serve', speed:'Body', m_confidence:'Mind' };
+
+/* ===================== Player card (FIFA style) ===================== */
+const CATS = [
+  ['SRV', ['serve_flat','serve_slice','serve_kick']],
+  ['RET', ['return']],
+  ['FH',  ['fh']],
+  ['BH',  ['bh']],
+  ['NET', ['fv','bv','overhead']],
+  ['TCH', ['slice','drop']],
+  ['PHY', ['speed','endurance']],
+  ['MEN', ['m_confidence','m_focus','m_fight','m_pressure','m_mistakes']],
+];
+function cardStats(d){
+  const stats = {};
+  CATS.forEach(([k, keys]) => { const v = keys.map(x => d[x]).filter(n => typeof n === 'number');
+    stats[k] = v.length ? Math.round(avg(v)) : null; });
+  const vals = Object.values(stats).filter(v => v != null);
+  return { stats, ovr: vals.length ? Math.round(avg(vals)) : 0 };
+}
+const tierOf = o => o >= 85 ? 'special' : o >= 70 ? 'gold' : o >= 50 ? 'silver' : 'bronze';
+function playerCardHTML(E, name, own){
+  const ps = E.filter(e => e.type === 'profile');
+  const cp = E.find(e => e.type === 'coachprofile');
+  if (!ps.length) return '';
+  const cur = cardStats(ps[0].data), prev = ps[1] ? cardStats(ps[1].data) : null;
+  const coach = cp ? cardStats(cp.data) : null, pot = cp && typeof cp.data.pot === 'number' ? cp.data.pot : null;
+  const t = tierOf(cur.ovr);
+  const grow = prev ? cur.ovr - prev.ovr : null;
+  const stat = k => { const v = cur.stats[k]; const pv = prev && prev.stats[k]; const d = v != null && pv != null ? v - pv : 0;
+    return `<div class="fs"><b>${v ?? '–'}</b><span>${k}</span>${d ? `<em class="${d>0?'up':'down'}">${d>0?'+':''}${d}</em>` : ''}</div>`; };
+  return `<div class="fut-wrap"><div class="fut ${t}">
+      <div class="fut-shine"></div>
+      <div class="fut-top">
+        <div class="fut-ovr"><b>${cur.ovr}</b><span>OVR</span>${pot ? `<i>POT ${pot}</i>` : ''}</div>
+        <img class="fut-logo" src="${t === 'special' ? LOGO.MONO_WHITE : LOGO.MONO_NAVY}" alt="ATA">
+      </div>
+      <div class="fut-name">${esc(name.toUpperCase())}</div>
+      <div class="fut-tier">${t === 'special' ? 'Special' : t[0].toUpperCase() + t.slice(1)} · ${new Date(ps[0].date).toLocaleDateString(LOCALE,{month:'short',year:'numeric'})}</div>
+      <div class="fut-stats">${CATS.map(([k]) => stat(k)).join('')}</div>
+    </div>
+    <div class="fut-meta">
+      ${grow !== null ? `<span class="${grow>=0?'up':'down'}">${grow>=0?'+':''}${grow} since ${new Date(ps[1].date).toLocaleDateString(LOCALE,{day:'numeric',month:'short'})}</span>` : `<span>First card</span>`}
+      ${coach ? `<span>${own ? 'Coach’s view' : 'Your view'}: ${coach.ovr}</span>` : `<span>${own ? 'Coach rating coming soon' : 'Add your rating'}</span>`}
+      ${pot ? `<span>Potential: ${pot}</span>` : ''}
+    </div>
+    ${own ? '<p class="fine">Your card is only seen by you and your coach. The number that matters is how much it grows.</p>' : '<p class="fine">Don’t show players each other’s cards.</p>'}
+  </div>`;
+}
 function profileHTML(E, own){
   const ps = E.filter(e => e.type === 'profile');
   const coach = E.find(e => e.type === 'coachprofile');
-  if (!ps.length) return `<div class="empty">${own ? 'Where can you use each shot? Rate them once now, then every 3 months.<br><br><button type="button" class="btn btn-navy" data-act="start" data-val="profile">Create my profile</button>' : 'No game profile yet.'}</div>`;
+  if (!ps.length) return `<div class="empty">${own ? 'Create your player card: rate each shot from 1 to 99 and get your OVR. Then update it every 3 months and watch it grow.<br><br><button type="button" class="btn btn-navy" data-act="start" data-val="profile">Create my card</button>' : 'No game profile yet.'}</div>`;
   const cur = ps[0].data, prev = ps[1] && ps[1].data, cd = coach && coach.data;
   const rows = PROFILE_SHOTS.map(([k, label]) => {
     const v = cur[k]; if (typeof v !== 'number') return '';
-    const scale = k.startsWith('m_') ? SC.mind : SC.shot;
+    const lname = k.startsWith('m_') ? 'mind' : 'shot';
     const dlt = prev && typeof prev[k] === 'number' ? v - prev[k] : 0;
     const note = cur[k + '_note'];
     const cv = cd && typeof cd[k] === 'number' ? cd[k] : null;
     return `${PROFILE_GROUPS[k] ? `<div class="pgroup">${PROFILE_GROUPS[k]}</div>` : ''}<div class="prow">
-      <div class="pl"><span>${label}</span><b class="plv">${scale[v-1] ? scale[v-1][0] + ' ' + esc(scale[v-1][1]) : v}</b>${dlt ? `<em class="${dlt>0?'up':'down'}">${dlt>0?'+':''}${dlt}</em>` : ''}</div>
-      <div class="ptrack"><i style="transform:scaleX(${v/5})"></i>${cv ? `<u style="left:calc(${cv/5*100}% - 7px)" title="Coach: ${esc(scale[cv-1] ? scale[cv-1][1] : cv)}"></u>` : ''}</div>
+      <div class="pl"><span>${label}</span><small class="plv">${lvl(lname, v)}</small><b>${v}</b>${dlt ? `<em class="${dlt>0?'up':'down'}">${dlt>0?'+':''}${dlt}</em>` : ''}</div>
+      <div class="ptrack"><i style="transform:scaleX(${v/99})"></i>${cv ? `<u style="left:calc(${cv/99*100}% - 7px)" title="Coach: ${cv}"></u>` : ''}</div>
       ${note ? `<div class="pnote">${esc(note)}</div>` : ''}
     </div>`;
   }).join('');
@@ -895,8 +1021,8 @@ function profileHTML(E, own){
   return `<div class="profile">
     <div class="phead">Updated ${ago(ps[0].date)}${prev ? ` · compared with ${new Date(ps[1].date).toLocaleDateString(LOCALE,{day:'numeric',month:'short'})}` : ''}</div>
     ${legend}${rows}${extra}
-    ${own ? (daysOld > 80 ? `<button type="button" class="btn btn-navy btn-block" data-act="start" data-val="profile">Time to update (every 3 months)</button>`
-                          : `<p class="fine">Next update around ${new Date(new Date(ps[0].date).getTime() + 90*864e5).toLocaleDateString(LOCALE,{day:'numeric',month:'long'})}.</p>`) : ''}
+    ${own ? (daysOld > 80 ? `<button type="button" class="btn btn-navy btn-block" data-act="start" data-val="profile">Time for a new card (every 3 months)</button>`
+                          : `<p class="fine">Next card update around ${new Date(new Date(ps[0].date).getTime() + 90*864e5).toLocaleDateString(LOCALE,{day:'numeric',month:'long'})}. <button type="button" class="link inline" data-act="start" data-val="profile">Update now</button></p>`) : ''}
   </div>`;
 }
 
@@ -1032,7 +1158,7 @@ function insights(E){
   // Profile vs coach
   const pr = E.filter(e => e.type==='profile'), cpf = E.filter(e => e.type==='coachprofile');
   if (pr.length && cpf.length) { const a = pr[0].data, b = cpf[0].data; const gaps = [];
-    PROFILE_SHOTS.forEach(([k,l]) => { if (typeof a[k]==='number' && typeof b[k]==='number' && Math.abs(a[k]-b[k]) >= 2) gaps.push(`${l} (they ${a[k]}, you ${b[k]})`); });
+    PROFILE_SHOTS.forEach(([k,l]) => { if (typeof a[k]==='number' && typeof b[k]==='number' && Math.abs(a[k]-b[k]) >= 15) gaps.push(`${l} (they ${a[k]}, you ${b[k]})`); });
     if (gaps.length) out.push({ icon:'⚖️', t:'Where you see it differently', x:gaps.slice(0,4).join(' · ') + '. Good topics for your next 1-to-1.', s:2 }); }
 
   return out.filter(Boolean).sort((a,b) => b.s - a.s);
@@ -1186,12 +1312,17 @@ async function saveChallenge(btn, clear){
 function openCoachRating(){
   const p = S.squad.find(x => x.id === S.cPlayer);
   const last = p.entries.find(e => e.type === 'coachprofile');
+  const theirs = (p.entries.find(e => e.type === 'profile') || { data:{} }).data;
   S.cRate = last ? { ...last.data } : {};
-  const sc = SC.shot;
-  const rows = PROFILE_SHOTS.map(([k, l]) => `${PROFILE_GROUPS[k] ? `<div class="pgroup">${PROFILE_GROUPS[k]}</div>` : ''}
-    <div class="crrow"><div class="crl">${l}</div><div class="s5 mini5">${sc.map(([ic, lb], i) =>
-      `<button type="button" class="${S.cRate[k]===i+1?'on':''}" data-act="crate" data-id="${k}" data-val="${i+1}" title="${esc(lb)}"><span>${ic}</span></button>`).join('')}</div></div>`).join('');
-  openInfoSheet(`<h3>Your view of ${esc(p.name)}</h3><p>Rate each shot with the same scale they use: ${sc.map(x => x[0] + ' ' + x[1]).join(' · ')}.</p>${rows}`,
+  PROFILE_SHOTS.forEach(([k]) => { if (typeof S.cRate[k] !== 'number') S.cRate[k] = typeof theirs[k] === 'number' ? theirs[k] : 50; });
+  const rows = PROFILE_SHOTS.map(([k, l]) => { const v = S.cRate[k], ln = k.startsWith('m_') ? 'mind' : 'shot';
+    return `${PROFILE_GROUPS[k] ? `<div class="pgroup">${PROFILE_GROUPS[k]}</div>` : ''}
+    <div class="crrow"><div class="crl">${l}<small>${typeof theirs[k]==='number' ? `They: ${theirs[k]}` : ''}</small></div>
+      <input type="range" min="1" max="99" value="${v}" data-crate="${k}" data-ln="${ln}" style="--p:${(v-1)/98*100}%" aria-label="${esc(l)}">
+      <b class="crv" id="crv-${k}">${v}</b></div>`; }).join('');
+  openInfoSheet(`<h3>Your view of ${esc(p.name)}</h3><p>Same 1-99 scale they use. Starts from their own scores so you only move what you disagree with.</p>${rows}
+    <div class="potbox"><label for="potin">Potential (POT)</label><p>Where you believe they can get. Shown on their card.</p>
+    <input id="potin" class="pinfield" type="number" inputmode="numeric" min="1" max="99" placeholder="e.g. 85" value="${S.cRate.pot ?? ''}"></div>`,
     `<button type="button" class="btn btn-orange btn-block" data-act="savecrate">Save my rating</button>`);
 }
 async function saveCoachRating(btn){
@@ -1199,6 +1330,8 @@ async function saveCoachRating(btn){
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+    const pot = parseInt(document.getElementById('potin')?.value, 10);
+    if (pot >= 1 && pot <= 99) S.cRate.pot = pot; else delete S.cRate.pot;
     const { entry } = await api('/coach-entry', { method:'POST', pin:S.coachPin, body:{ player:p.id, entry:{ id, type:'coachprofile', data:S.cRate } } });
     p.entries.unshift(entry); closeSheet(); toast('Rating saved ✓'); renderCoachPlayer();
   } catch(e) { toast('Couldn’t save. Try again.'); btn.disabled = false; btn.textContent = 'Save my rating'; }
@@ -1212,6 +1345,7 @@ function renderHome(enter){
   const matches = E.filter(e => e.type==='post');
   const pend = E.filter(e => e.sent === false).length;
   const actionBtn = f => { const F = FORMS[f]; const draft = store.get(kDraft(f), null);
+    if (f === 'daily' && todayDaily()) return `<button type="button" class="action done-today" data-act="start" data-val="daily"><div class="ic">✅</div><div><h3>Check-in done today</h3><p>Forgot something? Edit it until midnight.</p><div class="draft">✎ Edit today’s check-in</div></div><div class="arr">›</div></button>`;
     return `<button type="button" class="action" data-act="start" data-val="${f}"><div class="ic">${F.icon}</div><div><h3>${F.title}</h3><p>${F.desc}</p>${draft?'<div class="draft">● You have one in progress</div>':''}</div><div class="arr">›</div></button>`; };
   const first = S.user.name.split(' ')[0];
 
@@ -1238,7 +1372,8 @@ function renderHome(enter){
     ${pend ? `<div class="pending">⏳ ${pend} ${pend>1?'entries':'entry'} waiting to be sent. They’ll send automatically when you’re back online.</div>` : ''}
     <div class="stitle">Your progress</div>
     <div class="stats">${statCard('Energy',E,'daily','energy')}${statCard('Fun',E,'daily','fun')}${statCard('Match fun',E,'post','enjoy_match')}</div>
-    <div class="stitle">My game profile</div>
+    <div class="stitle">My player card</div>
+    ${playerCardHTML(E, S.user.name, true)}
     ${profileHTML(E, true)}
     <div class="stitle">Scouting file</div>
     ${scoutListHTML(E, true)}
@@ -1270,6 +1405,10 @@ async function syncEntries(){
 /* ===================== Step-by-step form ===================== */
 function startForm(f){
   S.form = f; S.ctx = {}; S.openNotes = new Set();
+  if (f === 'daily') {
+    const today = todayDaily();
+    if (today) { S.ctx.edit = today; S.data = { ...today.data }; S.step = 0; renderWizard('fwd'); return; }
+  }
   const draft = store.get(kDraft(f), null);
   S.data = draft ? draft.data : {};
   S.step = draft ? Math.min(draft.step, FORMS[f].steps.filter(st => !st.deep || S.data._deep).length-1) : 0;
@@ -1314,6 +1453,13 @@ function fieldHTML(f){
       inner = `<div class="sl-val" id="sv-${f.id}">${val}<small>/${f.max}</small></div>
         <input type="range" min="${f.min}" max="${f.max}" step="1" value="${val}" data-id="${f.id}" style="--p:${p}%" aria-label="${esc(f.label)}">
         <div class="sl-ends"><span>${esc(f.left)}</span><span>${esc(f.right)}</span></div>`;
+      if (f.note) inner += noteHTML(f);
+      break; }
+    case 'rate99': {
+      if (typeof v !== 'number') S.data[f.id] = 50;
+      const val = S.data[f.id];
+      inner = `<div class="r99"><div class="r99-n" id="sv-${f.id}">${val}</div><div class="r99-l" id="lv-${f.id}">${lvl(f.levels, val)}</div></div>
+        <input type="range" min="1" max="99" step="1" value="${val}" data-id="${f.id}" data-levels="${f.levels}" style="--p:${(val-1)/98*100}%" aria-label="${esc(f.label)}">`;
       if (f.note) inner += noteHTML(f);
       break; }
     case 'scale5': {
@@ -1364,7 +1510,7 @@ function renderWizard(dir){
   $app.innerHTML = `
   <div class="wrap">
     <div class="wz-top">
-      <div class="wz-bar"><button type="button" class="x" data-act="back" aria-label="Back">${S.step===0?'✕':'‹'}</button><div class="t">${F.icon} ${F.title}</div><div class="c">${S.step+1}/${total}</div></div>
+      <div class="wz-bar"><button type="button" class="x" data-act="back" aria-label="Back">${S.step===0?'✕':'‹'}</button><div class="t">${F.icon} ${S.ctx.edit ? 'Edit check-in' : F.title}</div><div class="c">${S.step+1}/${total}</div></div>
       <div class="progress"><i style="transform:scaleX(${from})"></i></div>
     </div>
     <div class="step ${dir||''}">
@@ -1374,7 +1520,7 @@ function renderWizard(dir){
     </div>
     <div class="wz-foot">
       ${offerDeep && reflective ? `<button type="button" class="btn btn-navy btn-block deepbtn" data-act="deeper">Go deeper <span>+2 min · recommended</span></button>` : ''}
-      <button type="button" class="btn btn-orange btn-block" data-act="next">${last ? 'Send to my coach' : 'Next'}</button>
+      <button type="button" class="btn btn-orange btn-block" data-act="next">${last ? (S.ctx.edit ? 'Save changes' : 'Send to my coach') : 'Next'}</button>
       ${offerDeep && !reflective ? `<button type="button" class="link deeplink" data-act="deeper">Want to go deeper? +2 min</button>` : ''}
     </div>
   </div>`;
@@ -1402,12 +1548,12 @@ function choose(id, val, multi){
   saveDraft();
 }
 
-function saveDraft(){ if (S.form) store.set(kDraft(S.form), { step:S.step, data:S.data }); }
+function saveDraft(){ if (S.form && !S.ctx.edit) store.set(kDraft(S.form), { step:S.step, data:S.data }); }
 
 function missingField(){
   const st = stepsOf()[S.step];
   for (const f of visibleFields(st)) {
-    if (f.optional || f.type==='info' || f.type==='slider') continue;
+    if (f.optional || f.type==='info' || f.type==='slider' || f.type==='rate99') continue;
     const v = S.data[f.id];
     if (v === undefined || v === null || (Array.isArray(v) && !v.length) || (typeof v === 'string' && !v.trim())) return f;
   }
@@ -1439,6 +1585,7 @@ function back(){
 function fmtVal(f, v){
   if (v === undefined || v === null || v === '') return '';
   if (f.type === 'slider') return `${v}/${f.max}`;
+  if (f.type === 'rate99') return `${v} · ${lvl(f.levels, v)}`;
   if (f.type === 'scale5') { const o = f.scale[v-1]; return o ? `${o[0]} ${o[1]} (${v}/5)` : String(v); }
   if (Array.isArray(v)) return v.join(', ');
   return String(v);
@@ -1460,7 +1607,7 @@ async function postForm(entry){
   const payload = {
     'form-name': NETLIFY_FORM,
     jugador: S.user.name,
-    tipo: F.title,
+    tipo: F.title + (entry.editedAt ? ' (edited)' : ''),
     fecha: fmtDate(entry.date),
     rival: d.opponent || '',
     resultado: entry.type==='post' ? `${d.result||''} ${d.score||''}`.trim() : '',
@@ -1475,26 +1622,47 @@ async function postForm(entry){
 async function send(entry){
   if (entry.sent === false) {
     await api('/entries', { method:'POST', pin:S.pin, player:S.user.id,
-      body:{ entry:{ id:entry.id, type:entry.type, date:entry.date, data:entry.data, pre:entry.pre } } });
-    entry.sent = true;
+      body:{ edit: !!entry.edit, entry:{ id:entry.id, type:entry.type, date:entry.date, data:entry.data, pre:entry.pre } } });
+    entry.sent = true; entry.edit = false;
   }
   if (!entry.mailed) { try { await postForm(entry); entry.mailed = true; } catch(e) {} }
 }
 function saveFlags(entry){
   const E = getEntries(); const e = E.find(x => x.id === entry.id);
-  if (e) { e.sent = entry.sent; e.mailed = entry.mailed; setEntries(E); }
+  if (e) { e.sent = entry.sent; e.mailed = entry.mailed; e.edit = entry.edit; setEntries(E); }
 }
 
 async function submit(){
   const btn = $app.querySelector('[data-act=next]'); if (btn) { if (btn.disabled) return; btn.disabled = true; btn.textContent = 'Sending…'; }
+  if (S.ctx.edit) return submitEdit();
+  if (S.form === 'daily' && todayDaily()) { toast('You already did today’s check-in'); S.form = null; return renderHome(true); }
   const when = S.data.when === 'Yesterday' ? new Date(Date.now() - 864e5) : new Date();
   const entry = { id: Date.now().toString(36) + Math.random().toString(36).slice(2,5), type: S.form, date: when.toISOString(),
                   data: { ...S.data }, pre: S.form==='post' && S.ctx.pre ? S.ctx.pre.id : undefined, sent:false, mailed:false };
   const E = getEntries(); E.unshift(entry); setEntries(E);
   store.del(kDraft(S.form));
-  try { await send(entry); } catch(e) { if (e.status === 401) { toast('Please sign in again'); } }
+  try { await send(entry); } catch(e) { if (e.status === 401) toast('Please sign in again'); else if (e.status === 409) { handleSendError(entry, e); S.form = null; return renderHome(true); } }
   saveFlags(entry);
   renderDone(entry, entry.sent);
+}
+
+async function submitEdit(){
+  const orig = S.ctx.edit;
+  if (madridDay(orig.date) !== madridDay(new Date())) { toast('Locked at midnight: check-ins can only be edited the same day'); S.form = null; return renderHome(true); }
+  const E = getEntries(); const e = E.find(x => x.id === orig.id);
+  e.data = { ...S.data }; e.sent = false; e.mailed = false; e.edit = true; e.editedAt = new Date().toISOString();
+  setEntries(E);
+  try { await send(e); } catch(err) { handleSendError(e, err); }
+  saveFlags(e);
+  renderDone(e, e.sent, true);
+}
+/* 409 from the server: daily already done today (another phone) or locked after midnight */
+function handleSendError(e, err){
+  if (err.status !== 409) return;
+  const E = getEntries();
+  if (e.edit) { const x = E.find(y => y.id === e.id); if (x) { x.sent = true; x.mailed = true; x.edit = false; } toast('Locked at midnight: that check-in can’t be edited anymore'); }
+  else { const i = E.findIndex(y => y.id === e.id); if (i > -1) E.splice(i, 1); toast('You already did today’s check-in'); }
+  setEntries(E); e.sent = true; e.mailed = true; syncEntries();
 }
 
 async function retryPending(){
@@ -1502,14 +1670,14 @@ async function retryPending(){
   retryPending.busy = true;
   try {
     for (const e of getEntries().filter(x => x.sent === false || x.mailed === false)) {
-      try { await send(e); saveFlags(e); } catch(err) { break; }
+      try { await send(e); saveFlags(e); } catch(err) { if (err.status === 409) { handleSendError(e, err); continue; } break; }
     }
   } finally { retryPending.busy = false; }
   if (onPlayerHome()) renderHome();
 }
 window.addEventListener('online', () => { retryPending(); if (S.coach) refreshSquad(); });
 
-function renderDone(entry, ok){
+function renderDone(entry, ok, edited){
   const F = FORMS[entry.type], d = entry.data;
   let extra = '';
   if (entry.type === 'pre' && d.words) extra = `<div class="words"><div class="k">Your words for today</div><div class="w">${esc(d.words)}</div></div>`;
@@ -1520,8 +1688,8 @@ function renderDone(entry, ok){
   $app.innerHTML = `
   <div class="wrap done">
     <div class="ball">✓</div>
-    <h2>${F.done.h}</h2>
-    <p>${F.done.p}</p>
+    <h2>${edited ? 'Check-in updated.' : F.done.h}</h2>
+    <p>${edited ? 'Saved. You can still change it until midnight.' : F.done.p}</p>
     ${extra}
     <div class="status ${ok?'ok':'wait'}">${ok ? '✓ Sent to your coach' : '⏳ Saved. It’ll send automatically when you’re back online.'}</div>
     <div style="margin-top:26px"><button type="button" class="btn btn-navy btn-block" data-act="home">Back to home</button></div>
@@ -1733,9 +1901,10 @@ function renderCoachPlayer(enter){
     </div>
     <div class="stitle">Weekly feeling <span class="hint">last 10</span></div>
     <div class="stats">${statCard('Enjoyment',E,'weekly','enjoy')}${statCard('Improving',E,'weekly','progress')}${statCard('Motivation',E,'weekly','motivation')}</div>
-    <div class="stitle">Game profile</div>
+    <div class="stitle">Player card</div>
+    ${playerCardHTML(E, p.name, false)}
     ${profileHTML(E, false)}
-    <button type="button" class="btn btn-ghost btn-block mt8" data-act="ratecoach">${E.some(e => e.type==='coachprofile') ? 'Update your rating' : 'Add your rating next to theirs'}</button>
+    <button type="button" class="btn btn-ghost btn-block mt8" data-act="ratecoach">${E.some(e => e.type==='coachprofile') ? 'Update your rating & potential' : 'Add your rating & potential'}</button>
     <div class="stitle">Scouting file</div>
     ${scoutListHTML(E, false)}
     <div class="stitle">History</div>
@@ -1807,6 +1976,12 @@ $app.addEventListener('click', e => {
 });
 $app.addEventListener('input', e => {
   const t = e.target;
+  if (t.dataset && t.dataset.crate) {
+    const v = +t.value; S.cRate[t.dataset.crate] = v;
+    t.style.setProperty('--p', ((v-1)/98*100) + '%');
+    const o = document.getElementById('crv-' + t.dataset.crate); if (o) o.textContent = v;
+    return;
+  }
   if (t.id === 'pin') {
     t.value = t.value.replace(/\D/g,'').slice(0,4);
     if (t.value.length === 4) doLogin();
@@ -1817,7 +1992,9 @@ $app.addEventListener('input', e => {
   if (t.type === 'range') {
     const v = +t.value; S.data[id] = v;
     t.style.setProperty('--p', ((v - +t.min) / (+t.max - +t.min)) * 100 + '%');
-    const sv = document.getElementById('sv-' + id); if (sv) sv.innerHTML = `${v}<small>/${t.max}</small>`;
+    const sv = document.getElementById('sv-' + id);
+    if (t.dataset.levels) { if (sv) sv.textContent = v; const lv = document.getElementById('lv-' + id); if (lv) lv.textContent = lvl(t.dataset.levels, v); }
+    else if (sv) sv.innerHTML = `${v}<small>/${t.max}</small>`;
   } else {
     S.data[id] = t.value;
     if (t.value.trim()) t.closest('.field')?.classList.remove('miss');

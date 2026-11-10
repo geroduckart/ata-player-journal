@@ -62,6 +62,8 @@ const json = (body, status = 200) =>
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   });
 
+/* Calendar day in Spain, so "today" and "midnight" mean the same for player and server */
+const madridDay = (d) => new Date(d).toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' });
 const sha = (s) => crypto.createHash('sha256').update(String(s)).digest();
 const same = (a, b) => crypto.timingSafeEqual(sha(a), sha(b));
 
@@ -150,7 +152,26 @@ export default async (req, context) => {
 
         const key = `entries/${player}/${e.id}`;
         const s = store();
-        if (await s.get(key, { type: 'json' })) return json({ ok: true, duplicate: true }); // safe to retry
+        const existing = await s.get(key, { type: 'json' });
+
+        /* Daily check-in: one per day. It can be edited the same day (Madrid time),
+           and locks at midnight. */
+        if (e.type === 'daily') {
+          if (existing) {
+            if (!body.edit) return json({ ok: true, duplicate: true });          // plain retry
+            if (madridDay(existing.date) !== madridDay(new Date()))
+              return json({ error: 'Locked: daily check-ins can only be edited the same day', locked: true }, 409);
+            const updated = { ...existing, data: cleanData(e.data), editedAt: new Date().toISOString() };
+            await s.setJSON(key, updated);
+            return json({ ok: true, edited: true });
+          }
+          const today = madridDay(new Date());
+          const other = (await listEntries(player)).find((x) => x.type === 'daily' && madridDay(x.date) === today);
+          if (other) return json({ error: 'Already done today', existingId: other.id }, 409);
+        } else if (existing) {
+          return json({ ok: true, duplicate: true });                            // safe to retry
+        }
+
         const entry = {
           id: e.id, type: e.type, date: new Date(e.date).toISOString(),
           data: cleanData(e.data),
