@@ -1,24 +1,51 @@
 /**
- * Player card rules (FIFA style), shared by the server and the app.
+ * Player card rules, shared by the server and the app.
  *
  * Nobody types a number. Points are DISTRIBUTED:
- *  1. Starting card: every attribute starts at 30. The player has 540 points to share out,
- *     max 80 per attribute. Average = 60 (OVR 60, silver). They must use all of them,
- *     so being great at something means being weaker at something else, like in a game.
+ *  1. Starting card: every attribute starts at 30 and can go up to 99. The player has 540 points
+ *     to share out. Average = 60 (OVR 60, silver). They must use all of them, so being great
+ *     at something means being weaker at something else.
  *  2. Every week: 3 points to add to the shots that improved, +0 to +2 bonus from the coach.
  *     Steps of 0.5, max 2 points per attribute per week. Unused points carry over one week only
  *     (max 6 + this week's bonus), so it stays about "what improved lately".
  *     Above 80 everything costs double (1 point = +0.5), max 99.
- *  3. OVR = average of the 18 attributes, so every point is worth the same.
+ *  3. Match points (added to the week's budget, max +3 a week):
+ *     win +0.5 · process goal kept +0.5 (win or lose) · coach "great match" +1 ·
+ *     tournament: semi-final +0.5, final +1, champion +2. The coach can void a match.
+ *     So losing while playing well (+1.5) beats winning without keeping the goal (+0.5).
+ *  4. OVR = average of the 18 attributes, so every point is worth the same.
  *
  * Season maths (Oct-Jun, ~36 weeks): 3.5-5 points/week = 126-180 points
  * = +7 to +10 OVR. A 60 can reach gold (70) with a great season.
  */
 export const CARD = {
-  START: 30, START_BUDGET: 540, START_MAX: 80,
+  START: 30, START_BUDGET: 540, START_MAX: 99,
   WEEKLY: 3, BONUS_MAX: 2, PER_ATTR_WEEK: 2, STEP: 0.5, BANK: 6,
   HIGH: 80, CAP: 99,
+  MATCH: { WIN: 0.5, PROCESS: 0.5, AWARD: 1, SEMI: 0.5, FINAL: 1, CHAMPION: 2, CAP_WEEK: 3 },
 };
+export const ROUNDS = ['Qualifying','Group stage','1st round','2nd round','Round of 16','Quarter-final','Semi-final','Final'];
+export const T_RESULTS = ['Champion','Final','Semi-final','Quarter-final','Round of 16','2nd round','1st round','Group stage','Qualifying','Earlier round','Withdrew'];
+
+/* Match + tournament points per week (capped). Returns { byWeek, items } */
+export function matchPoints(entries) {
+  const M = CARD.MATCH, byWeek = {}, items = [];
+  const awards = {}; entries.filter(e => e.type === 'matchaward' && e.data && e.data.match).forEach(e => { awards[e.data.match] = e.data; });
+  const add = (wk, pts, label, ref) => { if (!pts) return; byWeek[wk] = (byWeek[wk] || 0) + pts; items.push({ week: wk, pts, label, ref }); };
+  entries.filter(e => e.type === 'post').forEach(e => {
+    const a = awards[e.id] || {}; if (a.void) return;
+    const wk = weekKey(e.date), d = e.data || {};
+    if (d.result === 'Won') add(wk, M.WIN, 'Match won', e.id);
+    if (d.process_ok === 'Yes') add(wk, M.PROCESS, 'Process goal kept', e.id);
+    if (a.great) add(wk, M.AWARD, 'Great match (coach)', e.id);
+  });
+  entries.filter(e => e.type === 'tournament' && e.data && e.data.status === 'finished').forEach(e => {
+    const r = e.data.result, pts = r === 'Champion' ? M.CHAMPION : r === 'Final' ? M.FINAL : r === 'Semi-final' ? M.SEMI : 0;
+    add(weekKey(e.data.finishedAt || e.date), pts, `Tournament: ${r}`, e.id);
+  });
+  Object.keys(byWeek).forEach(wk => { byWeek[wk] = Math.min(M.CAP_WEEK, byWeek[wk]); });
+  return { byWeek, items };
+}
 export const ATTRS = ['fh','bh','slice','return','fv','bv','overhead','drop','serve_flat','serve_slice','serve_kick',
   'speed','endurance','m_confidence','m_focus','m_fight','m_pressure','m_mistakes'];
 
@@ -46,6 +73,7 @@ export function buildCard(entries, now = new Date()) {
   const startWk = weekKey(init.date), curWk = weekKey(now);
   const weeks = entries.filter(e => e.type === 'cardweek' && e.data && e.data.week).sort((a, b) => a.data.week.localeCompare(b.data.week));
   const bonus = {}; entries.filter(e => e.type === 'cardbonus' && e.data && e.data.week).forEach(e => { bonus[e.data.week] = Math.min(CARD.BONUS_MAX, Math.max(0, Number(e.data.points) || 0)); });
+  const mp = matchPoints(entries).byWeek;
   const values = {}; ATTRS.forEach(k => values[k] = Number(init.data[k]) || CARD.START);
   const history = [{ week: startWk, ovr: ovrOf(values) }];
   let spentBefore = 0, thisWeek = null;
@@ -61,15 +89,15 @@ export function buildCard(entries, now = new Date()) {
   for (let i = 0; i <= Math.max(0, weeksBetween(startWk, curWk)); i++) {
     const d = new Date(startWk + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + i * 7);
     const wk = d.toISOString().slice(0, 10);
-    earned += CARD.WEEKLY + (bonus[wk] || 0);
+    earned += CARD.WEEKLY + (bonus[wk] || 0) + (mp[wk] || 0);
   }
   const usedNow = thisWeek ? sumAlloc(thisWeek.data.alloc) : 0;
-  const budget = Math.min(Math.max(0, earned - spentBefore), CARD.BANK + (bonus[curWk] || 0));
+  const budget = Math.min(Math.max(0, earned - spentBefore), CARD.BANK + (bonus[curWk] || 0) + (mp[curWk] || 0));
   return {
     init, values, ovr: ovrOf(values), history, curWk, startWk, thisWeek,
     budgetThisWeek: budget,                                      // what can be spent this week in total
     left: Math.max(0, budget - usedNow),                         // still unspent
-    bonusThisWeek: bonus[curWk] || 0, canRedoStart: weeks.length === 0,
+    bonusThisWeek: bonus[curWk] || 0, matchThisWeek: mp[curWk] || 0, canRedoStart: weeks.length === 0,
   };
 }
 export const sumAlloc = a => Object.values(a || {}).reduce((s, v) => s + (Number(v) || 0), 0);

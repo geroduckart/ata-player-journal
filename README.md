@@ -22,7 +22,12 @@ Netlify Forms (detección activada) envía además una copia por email de cada r
 
 ## Carta de jugador (por puntos)
 - Nadie escribe números: los puntos se reparten. Reglas en `netlify/lib/card-rules.mjs` (el servidor las valida).
-- Carta inicial: cada atributo empieza en 30, el jugador reparte 540 puntos (máx. 80 por atributo) → OVR 60.
+- Carta inicial: cada atributo empieza en 30 (máx. 99), el jugador reparte 540 puntos → OVR 60.
 - Cada semana: 3 puntos + bonus del coach (0-2). Pasos de 0,5, máx. 2 por atributo y semana. Por encima de 80 cuesta el doble. Máx. 99.
 - Los puntos no usados se acumulan solo una semana (máx. 6 + bonus).
 - OVR = media de los 18 atributos. Temporada (~36 semanas) ≈ +7 a +10 OVR.
+
+## Partidos y torneos
+- Pre/post-partido: "Just a match" o "Tournament". En torneo: nombre y ronda; el torneo se crea solo y la siguiente ronda se rellena sola.
+- Se cierra solo al perder (ronda alcanzada) o al ganar la final (campeón). También "Finish" a mano (p. ej. retirada).
+- Puntos de partido (máx. +3/semana): ganar +0,5 · objetivo de proceso cumplido +0,5 · "Great match" del coach +1 · semifinal +0,5, final +1, campeón +2. El coach puede anular los puntos de un partido.

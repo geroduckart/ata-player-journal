@@ -23,7 +23,7 @@
 
 import { getStore } from '@netlify/blobs';
 import crypto from 'node:crypto';
-import { CARD, weekKey, weekId, buildCard, checkStart, checkWeek, ATTRS } from '../lib/card-rules.mjs';
+import { CARD, weekKey, weekId, buildCard, checkStart, checkWeek, ATTRS, ROUNDS, T_RESULTS } from '../lib/card-rules.mjs';
 
 const DEFAULT_PINS = {
   coach:  '0603',
@@ -33,7 +33,7 @@ const DEFAULT_PINS = {
 
 const MAX_FAILS = 10;                 // wrong PINs allowed per IP…
 const FAIL_WINDOW_MS = 15 * 60 * 1000; // …per 15 minutes
-const TYPES = new Set(['daily', 'pre', 'post', 'weekly', 'profile', 'cardinit', 'cardweek']);
+const TYPES = new Set(['daily', 'pre', 'post', 'weekly', 'profile', 'cardinit', 'cardweek', 'tournament']);
 const REACTIONS = new Set(['👏', '🔥', '💪', '🧠', '❤️', '😂']);
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
@@ -157,6 +157,24 @@ export default async (req, context) => {
         const s = store();
         const existing = await s.get(key, { type: 'json' });
 
+        /* Tournament: created when the first match is logged, updated round by round, finished at the end */
+        if (e.type === 'tournament') {
+          const d = e.data || {};
+          const status = d.status === 'finished' ? 'finished' : 'ongoing';
+          if (status === 'finished' && !T_RESULTS.includes(d.result)) return json({ error: 'Invalid tournament result' }, 400);
+          if (existing && existing.data.status === 'finished' && status === 'finished' && existing.data.result !== d.result
+              && weekKey(existing.data.finishedAt || existing.date) !== weekKey(new Date()))
+            return json({ error: 'This tournament is closed', locked: true }, 409);
+          const entry = { id: e.id, type: 'tournament', date: existing ? existing.date : new Date(e.date).toISOString(),
+            data: { name: String(d.name || 'Tournament').slice(0, 120), category: String(d.category || '').slice(0, 60), status,
+                    result: status === 'finished' ? d.result : undefined,
+                    lastRound: ROUNDS.includes(d.lastRound) ? d.lastRound : undefined,
+                    finishedAt: status === 'finished' ? (existing && existing.data.finishedAt) || new Date().toISOString() : undefined },
+            receivedAt: new Date().toISOString() };
+          await s.setJSON(key, entry);
+          return json({ ok: true, entry });
+        }
+
         /* Player card: points are distributed, never typed. Validated here so nobody can set 99s. */
         if (e.type === 'cardinit' || e.type === 'cardweek') {
           const all = await listEntries(player);
@@ -272,7 +290,7 @@ export default async (req, context) => {
       if (err) return err;
       const body = await req.json().catch(() => ({}));
       const player = String(body.player || ''), e = body.entry || {};
-      if (!playerIds().includes(player) || !['coachprofile', 'cardbonus'].includes(e.type) || !/^[a-z0-9]{6,20}$/.test(String(e.id))) return json({ error: 'Invalid' }, 400);
+      if (!playerIds().includes(player) || !['coachprofile', 'cardbonus', 'matchaward'].includes(e.type) || !/^[a-z0-9]{6,20}$/.test(String(e.id))) return json({ error: 'Invalid' }, 400);
       let data = cleanData(e.data);
       if (e.type === 'cardbonus') {
         const wk = weekKey(new Date());
@@ -280,6 +298,11 @@ export default async (req, context) => {
         const pts = Number(e.data && e.data.points);
         if (!(pts >= 0 && pts <= CARD.BONUS_MAX) || Math.round(pts / CARD.STEP) * CARD.STEP !== pts) return json({ error: `Bonus between 0 and ${CARD.BONUS_MAX}` }, 400);
         data = { week: wk, points: pts, note: String((e.data && e.data.note) || '').slice(0, 300) };
+      }
+      if (e.type === 'matchaward') {
+        const match = String((e.data && e.data.match) || '');
+        if (e.id !== 'ma' + match) return json({ error: 'Invalid award' }, 400);
+        data = { match, great: !!(e.data && e.data.great), void: !!(e.data && e.data.void) };
       }
       const entry = { id: e.id, type: e.type, date: new Date().toISOString(), data, receivedAt: new Date().toISOString() };
       await store().setJSON(`entries/${player}/${e.id}`, entry);
