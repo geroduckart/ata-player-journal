@@ -7,6 +7,9 @@
  *   GET  /api/coach     header  x-pin (coach)                       → every player's entries
  *   POST /api/pin       headers x-player, x-pin  body { newPin }    → a player changes their PIN
  *   POST /api/pin-reset header  x-pin (coach)    body { player }    → coach resets a PIN to default
+ *   POST /api/reply     header  x-pin (coach)    body { player, id, reaction, text } → coach replies to an entry
+ *   POST /api/challenge header  x-pin (coach)    body { player, text }  → set the player's challenge of the month
+ *   POST /api/coach-entry header x-pin (coach)   body { player, entry } → coach's own rating of the game profile
  *
  * Default PINs live here, on the server. The browser never sees them.
  * When a player changes their PIN in the app, it is stored (hashed) in Blobs
@@ -29,6 +32,7 @@ const DEFAULT_PINS = {
 const MAX_FAILS = 10;                 // wrong PINs allowed per IP…
 const FAIL_WINDOW_MS = 15 * 60 * 1000; // …per 15 minutes
 const TYPES = new Set(['daily', 'pre', 'post', 'weekly', 'profile']);
+const REACTIONS = new Set(['👏', '🔥', '💪', '🧠', '❤️', '😂']);
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
@@ -131,7 +135,7 @@ export default async (req, context) => {
         // the player, or the coach, can read
         const asCoach = playerIds().includes(player) && await pinMatches('coach', pin);
         if (!asCoach) { const err = await check(req, context, { role: 'player', player, pin }); if (err) return err; }
-        return json({ entries: await listEntries(player) });
+        return json({ entries: await listEntries(player), challenge: await store().get(`challenge/${player}`, { type: 'json' }) });
       }
 
       if (req.method === 'POST') {
@@ -162,7 +166,9 @@ export default async (req, context) => {
     if (path === '/api/coach' && req.method === 'GET') {
       const err = await check(req, context, { role: 'coach', pin: String(req.headers.get('x-pin') || '') });
       if (err) return err;
-      const players = await Promise.all(playerIds().map(async (id) => ({ id, entries: await listEntries(id) })));
+      const players = await Promise.all(playerIds().map(async (id) => ({
+        id, entries: await listEntries(id), challenge: await store().get(`challenge/${id}`, { type: 'json' }),
+      })));
       return json({ players });
     }
 
@@ -178,6 +184,49 @@ export default async (req, context) => {
       o[player] = pinHash(player, newPin);
       await store().setJSON(PIN_KEY, o);
       return json({ ok: true });
+    }
+
+    /* Coach replies to an entry (reaction and/or short note). Empty both = remove. */
+    if (path === '/api/reply' && req.method === 'POST') {
+      const err = await check(req, context, { role: 'coach', pin: String(req.headers.get('x-pin') || '') });
+      if (err) return err;
+      const body = await req.json().catch(() => ({}));
+      const player = String(body.player || ''), id = String(body.id || '');
+      if (!playerIds().includes(player) || !/^[a-z0-9]{6,20}$/.test(id)) return json({ error: 'Invalid' }, 400);
+      const key = `entries/${player}/${id}`, s = store();
+      const entry = await s.get(key, { type: 'json' });
+      if (!entry) return json({ error: 'Entry not found' }, 404);
+      const reaction = REACTIONS.has(body.reaction) ? body.reaction : '';
+      const text = String(body.text || '').trim().slice(0, 600);
+      if (!reaction && !text) delete entry.reply;
+      else entry.reply = { reaction, text, at: new Date().toISOString() };
+      await s.setJSON(key, entry);
+      return json({ ok: true, reply: entry.reply || null });
+    }
+
+    /* Coach sets (or clears) a player's challenge of the month */
+    if (path === '/api/challenge' && req.method === 'POST') {
+      const err = await check(req, context, { role: 'coach', pin: String(req.headers.get('x-pin') || '') });
+      if (err) return err;
+      const body = await req.json().catch(() => ({}));
+      const player = String(body.player || '');
+      if (!playerIds().includes(player)) return json({ error: 'Unknown player' }, 400);
+      const text = String(body.text || '').trim().slice(0, 200);
+      const value = text ? { text, set: new Date().toISOString() } : null;
+      await store().setJSON(`challenge/${player}`, value);
+      return json({ ok: true, challenge: value });
+    }
+
+    /* Coach's own rating of a player's game profile (shown next to the player's) */
+    if (path === '/api/coach-entry' && req.method === 'POST') {
+      const err = await check(req, context, { role: 'coach', pin: String(req.headers.get('x-pin') || '') });
+      if (err) return err;
+      const body = await req.json().catch(() => ({}));
+      const player = String(body.player || ''), e = body.entry || {};
+      if (!playerIds().includes(player) || e.type !== 'coachprofile' || !/^[a-z0-9]{6,20}$/.test(String(e.id))) return json({ error: 'Invalid' }, 400);
+      const entry = { id: e.id, type: 'coachprofile', date: new Date().toISOString(), data: cleanData(e.data), receivedAt: new Date().toISOString() };
+      await store().setJSON(`entries/${player}/${e.id}`, entry);
+      return json({ ok: true, entry });
     }
 
     /* Coach resets a player's PIN back to the default */
@@ -200,4 +249,4 @@ export default async (req, context) => {
   }
 };
 
-export const config = { path: ['/api/login', '/api/entries', '/api/coach', '/api/pin', '/api/pin-reset'] };
+export const config = { path: ['/api/login', '/api/entries', '/api/coach', '/api/pin', '/api/pin-reset', '/api/reply', '/api/challenge', '/api/coach-entry'] };
