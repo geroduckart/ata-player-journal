@@ -23,6 +23,7 @@
 
 import { getStore } from '@netlify/blobs';
 import crypto from 'node:crypto';
+import { CARD, weekKey, weekId, buildCard, checkStart, checkWeek, ATTRS } from '../lib/card-rules.mjs';
 
 const DEFAULT_PINS = {
   coach:  '0603',
@@ -32,7 +33,7 @@ const DEFAULT_PINS = {
 
 const MAX_FAILS = 10;                 // wrong PINs allowed per IP…
 const FAIL_WINDOW_MS = 15 * 60 * 1000; // …per 15 minutes
-const TYPES = new Set(['daily', 'pre', 'post', 'weekly', 'profile']);
+const TYPES = new Set(['daily', 'pre', 'post', 'weekly', 'profile', 'cardinit', 'cardweek']);
 const REACTIONS = new Set(['👏', '🔥', '💪', '🧠', '❤️', '😂']);
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
@@ -156,6 +157,31 @@ export default async (req, context) => {
         const s = store();
         const existing = await s.get(key, { type: 'json' });
 
+        /* Player card: points are distributed, never typed. Validated here so nobody can set 99s. */
+        if (e.type === 'cardinit' || e.type === 'cardweek') {
+          const all = await listEntries(player);
+          const data = {};
+          if (e.type === 'cardinit') {
+            if (e.id !== 'cardstart') return json({ error: 'Invalid card id' }, 400);
+            if (all.some(x => x.type === 'cardweek')) return json({ error: 'The starting card is locked once weekly points have been added', locked: true }, 409);
+            ATTRS.forEach(k => { data[k] = Number(e.data && e.data[k]); });
+            const err = checkStart(data); if (err) return json({ error: err }, 400);
+          } else {
+            const wk = weekKey(new Date());
+            if (e.id !== weekId(wk)) return json({ error: 'Only this week’s points can be changed', locked: true }, 409);
+            const card = buildCard(all.filter(x => x.id !== e.id));
+            if (!card) return json({ error: 'Create the starting card first' }, 409);
+            const alloc = {};
+            Object.entries((e.data && e.data.alloc) || {}).forEach(([k, v]) => { if (Number(v) > 0) alloc[k] = Number(v); });
+            const err = checkWeek(alloc, card.budgetThisWeek); if (err) return json({ error: err }, 400);
+            data.week = wk; data.alloc = alloc; data.note = String((e.data && e.data.note) || '').slice(0, 300);
+          }
+          const entry = { id: e.id, type: e.type, date: existing ? existing.date : new Date().toISOString(), data,
+                          editedAt: existing ? new Date().toISOString() : undefined, receivedAt: new Date().toISOString() };
+          await s.setJSON(key, entry);
+          return json({ ok: true, entry });
+        }
+
         /* Daily check-in: one per day. It can be edited the same day (Madrid time),
            and locks at midnight. */
         if (e.type === 'daily') {
@@ -246,8 +272,16 @@ export default async (req, context) => {
       if (err) return err;
       const body = await req.json().catch(() => ({}));
       const player = String(body.player || ''), e = body.entry || {};
-      if (!playerIds().includes(player) || e.type !== 'coachprofile' || !/^[a-z0-9]{6,20}$/.test(String(e.id))) return json({ error: 'Invalid' }, 400);
-      const entry = { id: e.id, type: 'coachprofile', date: new Date().toISOString(), data: cleanData(e.data), receivedAt: new Date().toISOString() };
+      if (!playerIds().includes(player) || !['coachprofile', 'cardbonus'].includes(e.type) || !/^[a-z0-9]{6,20}$/.test(String(e.id))) return json({ error: 'Invalid' }, 400);
+      let data = cleanData(e.data);
+      if (e.type === 'cardbonus') {
+        const wk = weekKey(new Date());
+        if (e.id !== 'cb' + wk.replace(/-/g, '')) return json({ error: 'Bonus only for this week' }, 400);
+        const pts = Number(e.data && e.data.points);
+        if (!(pts >= 0 && pts <= CARD.BONUS_MAX) || Math.round(pts / CARD.STEP) * CARD.STEP !== pts) return json({ error: `Bonus between 0 and ${CARD.BONUS_MAX}` }, 400);
+        data = { week: wk, points: pts, note: String((e.data && e.data.note) || '').slice(0, 300) };
+      }
+      const entry = { id: e.id, type: e.type, date: new Date().toISOString(), data, receivedAt: new Date().toISOString() };
       await store().setJSON(`entries/${player}/${e.id}`, entry);
       return json({ ok: true, entry });
     }
