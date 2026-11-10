@@ -1,0 +1,9 @@
+{
+  "name": "ata-player-journal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Almuñécar Tennis Academy — Player Journal",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

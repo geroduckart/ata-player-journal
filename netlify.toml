@@ -1,7 +1,14 @@
-# Static site: no build step, publish this folder as is.
+# ATA Player Journal
+# The app lives in /public, the API in /netlify/functions (Netlify Blobs storage).
 [build]
-  publish = "."
-  command = ""
+  publish = "public"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [[headers]]
   for = "/*"
@@ -9,6 +16,7 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "same-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     X-Robots-Tag = "noindex, nofollow"
 
 # Always serve the latest version of the app
@@ -16,3 +24,8 @@
   for = "/index.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"
