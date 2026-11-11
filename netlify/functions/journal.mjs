@@ -29,6 +29,7 @@ const DEFAULT_PINS = {
   coach:  '0603',
   matej:  '1111',
   rudolf: '2222',
+  nico:   '3333',
 };
 
 const MAX_FAILS = 10;                 // wrong PINs allowed per IP…

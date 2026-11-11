@@ -3,7 +3,7 @@
 App del diario de jugadores de Almuñécar Tennis Academy.
 
 - `public/index.html`: la app (jugadores y coach).
-- `netlify/functions/journal.mjs`: la API. Aquí están los PIN por defecto (coach 0603, Matej 1111, Rudolf 2222).
+- `netlify/functions/journal.mjs`: la API. Aquí están los PIN por defecto (coach 0603, Matej 1111, Rudolf 2222, Nico 3333).
 - Los datos se guardan en Netlify Blobs (store `player-journal`).
 
 ## Añadir un jugador
