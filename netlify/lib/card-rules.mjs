@@ -101,7 +101,12 @@ export function buildCard(entries, now = new Date()) {
   };
 }
 export const sumAlloc = a => Object.values(a || {}).reduce((s, v) => s + (Number(v) || 0), 0);
-export const ovrOf = v => ATTRS.reduce((s, k) => s + (Number(v[k]) || 0), 0) / ATTRS.length;
+/* OVR = average of the 8 card categories (same as the app) */
+export const CATS = [['SRV',['serve_flat','serve_slice','serve_kick']],['RET',['return']],['FH',['fh']],['BH',['bh']],
+  ['NET',['fv','bv','overhead']],['TCH',['slice','drop']],['PHY',['speed','endurance']],
+  ['MEN',['m_confidence','m_focus','m_fight','m_pressure','m_mistakes']]];
+export const ovrOf = v => { const c = CATS.map(([, keys]) => keys.map(x => Number(v[x])).filter(n => !isNaN(n))).filter(a => a.length).map(a => a.reduce((s, n) => s + n, 0) / a.length);
+  return c.length ? c.reduce((s, n) => s + n, 0) / c.length : 0; };
 
 /* Validation (server side). Returns an error string or null. */
 export function checkStart(data) {
