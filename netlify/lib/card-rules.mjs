@@ -23,7 +23,18 @@ export const CARD = {
   WEEKLY: 3, BONUS_MAX: 2, PER_ATTR_WEEK: 2, STEP: 0.5, BANK: 6,
   HIGH: 80, CAP: 99,
   MATCH: { WIN: 0.5, PROCESS: 0.5, AWARD: 1, SEMI: 0.5, FINAL: 1, CHAMPION: 2, CAP_WEEK: 3 },
+  CHECKIN: 0.25, CHECKINS_PER_POINT: 4,   // every daily check-in is worth 0.25; each 4 add 1 point to the card
 };
+
+/* Daily check-in points: counted from the starting card on; every 4th check-in unlocks 1 point in its week */
+export function checkinPoints(entries, since) {
+  const byWeek = {};
+  const md = d => new Date(d).toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' });
+  const from = md(since);
+  const days = [...new Set(entries.filter(e => e.type === 'daily').map(e => md(e.date)).filter(d => d >= from))].sort();
+  days.forEach((d, i) => { if ((i + 1) % CARD.CHECKINS_PER_POINT === 0) { const wk = weekKey(d + 'T12:00:00Z'); byWeek[wk] = (byWeek[wk] || 0) + 1; } });
+  return { byWeek, count: days.length, progress: days.length % CARD.CHECKINS_PER_POINT };
+}
 export const ROUNDS = ['Qualifying','Group stage','1st round','2nd round','Round of 16','Quarter-final','Semi-final','Final'];
 export const T_RESULTS = ['Champion','Final','Semi-final','Quarter-final','Round of 16','2nd round','1st round','Group stage','Qualifying','Earlier round','Withdrew'];
 
@@ -74,6 +85,7 @@ export function buildCard(entries, now = new Date()) {
   const weeks = entries.filter(e => e.type === 'cardweek' && e.data && e.data.week).sort((a, b) => a.data.week.localeCompare(b.data.week));
   const bonus = {}; entries.filter(e => e.type === 'cardbonus' && e.data && e.data.week).forEach(e => { bonus[e.data.week] = Math.min(CARD.BONUS_MAX, Math.max(0, Number(e.data.points) || 0)); });
   const mp = matchPoints(entries).byWeek;
+  const ci = checkinPoints(entries, init.date).byWeek;
   const values = {}; ATTRS.forEach(k => values[k] = Number(init.data[k]) || CARD.START);
   const history = [{ week: startWk, ovr: ovrOf(values) }];
   let spentBefore = 0, thisWeek = null;
@@ -89,10 +101,10 @@ export function buildCard(entries, now = new Date()) {
   for (let i = 0; i <= Math.max(0, weeksBetween(startWk, curWk)); i++) {
     const d = new Date(startWk + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + i * 7);
     const wk = d.toISOString().slice(0, 10);
-    earned += CARD.WEEKLY + (bonus[wk] || 0) + (mp[wk] || 0);
+    earned += CARD.WEEKLY + (bonus[wk] || 0) + (mp[wk] || 0) + (ci[wk] || 0);
   }
   const usedNow = thisWeek ? sumAlloc(thisWeek.data.alloc) : 0;
-  const budget = Math.min(Math.max(0, earned - spentBefore), CARD.BANK + (bonus[curWk] || 0) + (mp[curWk] || 0));
+  const budget = Math.min(Math.max(0, earned - spentBefore), CARD.BANK + (bonus[curWk] || 0) + (mp[curWk] || 0) + (ci[curWk] || 0));
   return {
     init, values, ovr: ovrOf(values), history, curWk, startWk, thisWeek,
     budgetThisWeek: budget,                                      // what can be spent this week in total
