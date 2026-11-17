@@ -217,6 +217,13 @@ export default async (req, context) => {
           if (other) return json({ error: 'Already done today', existingId: other.id }, 409);
         } else if (existing) {
           return json({ ok: true, duplicate: true });                            // safe to retry
+        } else if (e.type === 'weekly') {
+          /* Weekly review: Friday to Sunday (Spain time), once per week */
+          const dow = new Date().toLocaleDateString('en-GB', { timeZone: 'Europe/Madrid', weekday: 'short' });
+          if (!['Fri', 'Sat', 'Sun'].includes(dow)) return json({ error: 'The weekly review opens on Friday' }, 409);
+          const wk = weekKey(new Date());
+          if ((await listEntries(player)).some((x) => x.type === 'weekly' && weekKey(x.date) === wk))
+            return json({ error: 'You already logged this week. The next one opens on Friday' }, 409);
         }
 
         const entry = {
